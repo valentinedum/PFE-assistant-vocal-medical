@@ -1,3 +1,3 @@
 # PFE-assistant-vocal-medical
 
-_Valentine Dumange_
+_Valentine Dumange / Kilian Davoust_
