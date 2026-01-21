@@ -1,6 +1,6 @@
 # PFE-assistant-vocal-medical
 
-_Valentine Dumange_
+_Valentine Dumange / Kilian Davoust_
 
 ## Architecture GIT
 - branche main pour livraison finale
