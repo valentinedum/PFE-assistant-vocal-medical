@@ -1,0 +1,151 @@
+text,intent
+"J'voudrais prendre rdv avec le docteur Martin demain.",book_appointment
+"Est-ce que y'a de la place pour une consultation à 14h ?",book_appointment
+"J'ai besoin d'un créneau pour mon fils samedi matin.",book_appointment
+"Vous pouvez me prendre pour une séance de kiné cette semaine ?",book_appointment
+"J'aimerais fixer une date pour un rappel de vaccin.",book_appointment
+"C'est possible de voir un généraliste cet après-midi ?",book_appointment
+"Je cherche un rdv pour une radio du genou le plus tôt possible.",book_appointment
+"Il me faudrait une plage horaire pour une téléconsultation.",book_appointment
+"Vous avez de la place le 12 pour un détartrage ?",book_appointment
+"J'voudrais caler une visite pour un certificat médical.",book_appointment
+"Est-ce que j'peux passer vendredi vers 10h ?",book_appointment
+"J'aimerais bloquer un moment pour mon bilan de santé.",book_appointment
+"Prenez-moi un rdv pour une prise de sang demain matin.",book_appointment
+"Je souhaite réserver une séance d'ostéopathie pour mon dos.",book_appointment
+"Serait-il possible de voir l'ophtalmo avant la fin du mois ?",book_appointment
+"J'ai besoin d'une date pour une échographie de contrôle.",book_appointment
+"Vous avez un créneau libre pour un test de dépistage ?",book_appointment
+"J'voudrais prendre rdv pour ma mère chez le dermato.",book_appointment
+"C'est pour programmer une extraction de dent de sagesse.",book_appointment
+"Est-ce qu'on peut se voir lundi prochain ?",book_appointment
+"J'aimerais bien prendre un rdv pour un examen du cœur.",book_appointment
+"Vous pouvez m'inscrire pour la vaccination de 15h ?",book_appointment
+"Je cherche à voir une gynécologue de garde rapidement.",book_appointment
+"Est-ce que y'a une disponibilité pour un renouvellement d'ordonnance ?",book_appointment
+"J'voudrais fixer une rencontre avec le psychologue.",book_appointment
+"Pouvez-vous me donner un rdv pour mon rappel de 16h ?",book_appointment
+"J'ai besoin de caler une consultation pour mes allergies.",book_appointment
+"Est-ce qu'il reste de la place pour un pansement demain ?",book_appointment
+"J'voudrais réserver un passage avec l'infirmière.",book_appointment
+"C'est pour un rdv de suivi pédiatrique pour ma fille.",book_appointment
+"Vite mon mari respire plus du tout aidez-moi.",medical_urgency
+"Il s'étouffe avec un morceau de viande il devient bleu.",medical_urgency
+"Y'a du sang partout il s'est coupé avec une machine.",medical_urgency
+"Ma femme est tombée inconsciente elle réagit plus.",medical_urgency
+"J'ai une douleur atroce dans la poitrine comme un étau.",medical_urgency
+"Il vient de faire une crise d'épilepsie et il se réveille pas.",medical_urgency
+"Je saigne énormément de la tête après une chute.",medical_urgency
+"Mon enfant a bu un produit ménager il vomit du sang.",medical_urgency
+"Il a le visage tout déformé et il arrive plus à parler.",medical_urgency
+"Au secours mon voisin a fait une chute de 3 mètres.",medical_urgency
+"Je ressens une brûlure immense je supporte plus la douleur.",medical_urgency
+"Il s'est ouvert l'artère ça gicle il faut une ambulance.",medical_urgency
+"Ma fille fait un choc allergique elle arrive plus à respirer.",medical_urgency
+"Je sens plus mes jambes après l'accident de voiture.",medical_urgency
+"Il a perdu connaissance en pleine rue il est tout blanc.",medical_urgency
+"J'ai une douleur fulgurante dans le bras gauche j'vais tomber.",medical_urgency
+"Il est resté sous l'eau trop longtemps il est inanimé.",medical_urgency
+"Je perds énormément de sang par le nez et la bouche.",medical_urgency
+"Mon ami a pris trop de cachets il est en train de partir.",medical_urgency
+"J'ai reçu un coup de couteau au ventre je vais m'évanouir.",medical_urgency
+"Il respire plus j'commence le massage cardiaque venez vite.",medical_urgency
+"Elle est en train d'accoucher dans le salon le bébé sort.",medical_urgency
+"Y'a un incendie et j'ai inhalé de la fumée je m'asphyxie.",medical_urgency
+"Il a fait un arrêt cardiaque devant moi envoyez quelqu'un.",medical_urgency
+"C'est une urgence vitale il est en train de s'étouffer.",medical_urgency
+"Ma mère fait un malaise elle tombe par terre.",medical_urgency
+"J'ai une hémorragie qui s'arrête pas au niveau de la jambe.",medical_urgency
+"Il a une douleur insupportable au ventre il hurle.",medical_urgency
+"Vite il s'est électrocuté il bouge plus.",medical_urgency
+"Mon bébé a une fièvre de 41 et il est tout mou.",medical_urgency
+"C'est ouvert à quelle heure le samedi matin ?",info_practical
+"Donnez-moi l'adresse exacte du cabinet s'il vous plaît.",info_practical
+"Y'a un parking pour se garer pas loin de chez vous ?",info_practical
+"Est-ce que vous faites le tiers payant avec la mutuelle ?",info_practical
+"C'est quoi le tarif pour une consultation simple ?",info_practical
+"Vous prenez la carte vitale pour le remboursement ?",info_practical
+"Est-ce que le centre est accessible aux fauteuils roulants ?",info_practical
+"Faut apporter quels documents pour le dossier ?",info_practical
+"Le docteur est conventionné secteur 1 ou pas ?",info_practical
+"Comment on vient chez vous en bus ou en métro ?",info_practical
+"Vous acceptez encore des nouveaux patients ?",info_practical
+"Quels sont les modes de paiement que vous prenez ?",info_practical
+"Y'a un ascenseur pour monter dans les étages ?",info_practical
+"C'est combien le prix pour une visite à domicile ?",info_practical
+"Est-ce que y'a une pharmacie juste à côté du centre ?",info_practical
+"Vous pouvez m'envoyer le plan d'accès par message ?",info_practical
+"Il faut une ordonnance pour faire cet examen chez vous ?",info_practical
+"Est-ce que vous faites les prises de sang sans rdv ?",info_practical
+"À quelle heure vous fermez le vendredi soir ?",info_practical
+"C'est quoi vos tarifs pour les dépassements d'honoraires ?",info_practical
+"Y'a quelqu'un qui parle anglais dans l'équipe ?",info_practical
+"Ça dure combien de temps en général la séance ?",info_practical
+"Est-ce que vous êtes ouverts pendant les vacances ?",info_practical
+"Quelles sont les mutuelles que vous acceptez ?",info_practical
+"C'est possible de payer en plusieurs fois ?",info_practical
+"Faut-il être à jeun pour l'examen de demain ?",info_practical
+"Vous avez un site internet pour voir les infos ?",info_practical
+"Y'a-t-il une salle d'attente pour les enfants ?",info_practical
+"Est-ce que vous faites les vaccins pour les voyages ?",info_practical
+"Quel est le nom du médecin de garde ce soir ?",info_practical
+"J'voudrais annuler mon rdv de demain à 14h.",cancel_appointment
+"J'pourrai pas être là pour ma consultation cet après-midi.",cancel_appointment
+"J'ai un gros empêchement j'dois supprimer mon créneau.",cancel_appointment
+"Vous pouvez libérer ma place chez le dentiste jeudi ?",cancel_appointment
+"Je souhaite me désister de ma séance de kiné de ce soir.",cancel_appointment
+"Supprimez ma réservation pour l'IRM s'il vous plaît.",cancel_appointment
+"J'viendrai pas finalement vous pouvez rayer mon nom.",cancel_appointment
+"Mon fils est malade j'dois annuler sa visite chez le pédiatre.",cancel_appointment
+"J'ai un contretemps au travail je serai pas là.",cancel_appointment
+"Est-ce que c'est possible de décommander mon rdv ?",cancel_appointment
+"J'peux plus me déplacer merci d'annuler mon passage.",cancel_appointment
+"Veuillez retirer mon créneau pour la prise de sang de 8h.",cancel_appointment
+"J'ai plus besoin de cette consultation donc je l'annule.",cancel_appointment
+"J'ai trouvé un autre médecin merci de supprimer mon rdv.",cancel_appointment
+"C'est plus la peine de me garder la place pour mardi.",cancel_appointment
+"J'voudrais mettre fin à mon suivi et annuler les séances.",cancel_appointment
+"C'est pour une annulation de dernière minute j'suis désolé.",cancel_appointment
+"Ma voiture est en panne j'arriverai pas à l'heure.",cancel_appointment
+"Annulez tout pour moi cette semaine j'suis bloqué.",cancel_appointment
+"J'me sens beaucoup mieux donc je viens pas au rdv.",cancel_appointment
+"Merci de supprimer ma fiche pour la visite de demain.",cancel_appointment
+"J'libère mon créneau de 10h pour quelqu'un d'autre.",cancel_appointment
+"Désistement pour la consultation d'ophtalmo de 16h.",cancel_appointment
+"J'voudrais annuler mon opération prévue lundi prochain.",cancel_appointment
+"Merci d'effacer mon rdv de votre agenda.",cancel_appointment
+"J'vais pas pouvoir venir à cause d'une urgence.",cancel_appointment
+"Est-ce qu'on peut annuler le rdv de 11h ?",cancel_appointment
+"J'appelle pour dire que j'annule ma séance d'ostéo.",cancel_appointment
+"Supprimez le rendez-vous de monsieur Durand s'il vous plaît.",cancel_appointment
+"Je décale pas je veux juste annuler.",cancel_appointment
+"Allô vous m'entendez bien ?",off_topic
+"Bonjour comment ça va aujourd'hui ?",off_topic
+"J'voudrais commander une pizza avec du jambon.",off_topic
+"Quel temps il fait à Paris en ce moment ?",off_topic
+"Merci beaucoup pour toutes ces infos.",off_topic
+"Racontez-moi une blague pour passer le temps.",off_topic
+"Est-ce que vous êtes un humain ou une machine ?",off_topic
+"Au revoir et passez une bonne journée.",off_topic
+"Je cherche le score du match de foot de ce soir.",off_topic
+"C'est qui le président de la République française ?",off_topic
+"Salut je voulais juste passer un petit bonjour.",off_topic
+"Quelle est la capitale de l'Espagne ?",off_topic
+"J'm'ennuie est-ce qu'on peut parler d'autre chose ?",off_topic
+"Est-ce qu'il va pleuvoir dans l'après-midi ?",off_topic
+"J'ai besoin d'une recette pour faire des crêpes.",off_topic
+"C'est quoi le sens de la vie d'après vous ?",off_topic
+"Merci de m'avoir répondu si vite c'est sympa.",off_topic
+"À plus tard et encore merci pour tout.",off_topic
+"J'voudrais acheter des baskets sur internet.",off_topic
+"Vous connaissez une bonne série sur Netflix ?",off_topic
+"Comment on dit merci en chinois ?",off_topic
+"Vous travaillez pour quelle boîte exactement ?",off_topic
+"Bonne soirée à tout le monde au cabinet.",off_topic
+"J'aime pas attendre au téléphone c'est trop long.",off_topic
+"Est-ce que vous pouvez chanter un truc ?",off_topic
+"Je cherche un billet d'avion pas cher pour l'été.",off_topic
+"C'est bientôt l'heure de manger j'ai faim.",off_topic
+"Y'a quelqu'un au bout du fil ?",off_topic
+"J'comprends rien à ce que vous dites.",off_topic
+"Ok super merci à bientôt.",off_topic
