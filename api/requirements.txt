@@ -4,3 +4,4 @@ pandas
 scikit-learn
 mlflow
 requests
+psycopg2-binary==2.9.11

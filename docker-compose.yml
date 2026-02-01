@@ -1,4 +1,40 @@
 services:
+  db:
+    image: postgres:15
+    container_name: medical_db
+    restart: always
+    environment:
+      POSTGRES_USER: user        
+      POSTGRES_PASSWORD: password 
+      POSTGRES_DB: medical_db  
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # persistence des données
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d medical_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: medical_mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      - BACKEND_STORE_URI=postgresql://user:password@db:5432/medical_db
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://user:password@db:5432/medical_db
+      --default-artifact-root /mlartifacts
+      --host 0.0.0.0
+    volumes:
+      - ./mlartifacts:/mlartifacts
+    depends_on:
+      db:
+        condition: service_healthy
+  
   api:
     build: 
       context: ./api
@@ -10,15 +46,10 @@ services:
       - ./data:/data
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - DATABASE_URL=postgresql://user:password@db:5432/medical_db
     depends_on:
       - mlflow
+      - db
 
-  mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
-    container_name: medical_mlflow
-    ports:
-      - "5000:5000"
-    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlartifacts --host 0.0.0.0
-    volumes:
-      - ./mlartifacts:/mlartifacts
-      - ./mlflow.db:/mlflow.db
+volumes:
+  postgres_data:
