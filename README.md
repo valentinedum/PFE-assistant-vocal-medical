@@ -39,3 +39,26 @@ _Valentine Dumange / Kilian Davoust_
 ├── mlflow.db
 └── services
 ```
+
+## Données
+
+### Données d'entrainement
+
+Faute de données réelles concernant les appels de prise de rendez-vous médicaux (contraintes RGPD), nous générons synthétiquement un dataset d'entraînement diversifié couvrant les principales intentions d'appel :
+
+- **book_appointment** : Demande de prise de rendez-vous
+- **medical_urgency** : Situation d'urgence médicale
+- **info_practical** : Questions pratiques (horaires, localisation, etc.)
+- **cancel_appointment** : Annulation de rendez-vous
+- **off_topic** : Requêtes hors sujet
+
+### Données métier (Base de données)
+
+En complément des données d'entraînement, la base de données PostgreSQL contient les données métier structurées :
+
+**Schéma principal :**
+- **doctors** : Informations des médecins (id, nom, spécialité, etc.)
+- **slots** : Créneaux de disponibilité des médecins
+- **appointments** : Rendez-vous médicaux pris
+
+Ces données sont initialisées via les scripts SQL dans `db/init/` lors du démarrage des conteneurs Docker. 
