@@ -1,0 +1,230 @@
+text,intent
+C'est possible de payer en plusieurs fois ?,info_practical
+Pouvez-vous me donner un rdv pour mon rappel ?,book_appointment
+Il faut une ordonnance pour cet examen ?,info_practical
+C'est pour une annulation de rdv.,cancel_appointment
+Mon enfant a bu un produit ménager il vomit du sang.,medical_urgency
+Vous travaillez pour qui ?,off_topic
+Est-ce qu'on peut se voir lundi prochain ?,book_appointment
+Je dois annuler car je suis malade.,cancel_appointment
+C'est quoi votre couleur préférée ?,off_topic
+J'ai besoin d'une date pour une échographie de contrôle.,book_appointment
+Est-ce que je peux passer vendredi vers 10h ?,book_appointment
+Au secours mon voisin a fait une chute de 3 mètres.,medical_urgency
+Donnez-moi l'adresse exacte du cabinet s'il vous plaît.,info_practical
+Y a-t-il un dentiste disponible pour une urgence dentaire ?,book_appointment
+Vous avez un créneau libre pour un test de dépistage ?,book_appointment
+Il a avalé de la javel vite !,medical_urgency
+Quel temps fait-il à Paris ?,off_topic
+J'aime bien les chats.,off_topic
+Il a le visage tout déformé et il n'arrive plus à parler.,medical_urgency
+Il ne respire plus je commence le massage cardiaque.,medical_urgency
+J'ai une douleur en coup de poignard dans le ventre.,medical_urgency
+J'ai bu du poison par erreur.,medical_urgency
+C'est la vie.,off_topic
+Je ne décale pas je veux juste annuler.,cancel_appointment
+Il a une douleur insupportable au ventre il hurle.,medical_urgency
+C'est pour programmer une extraction de dent de sagesse.,book_appointment
+J'ai un imprévu familial j'annule.,cancel_appointment
+Enlevez-moi du planning svp.,cancel_appointment
+Tu as quel âge ?,off_topic
+Il a une fracture ouverte on voit l'os.,medical_urgency
+Est-ce que vous faites le tiers payant ?,info_practical
+Veuillez retirer mon créneau de 8h.,cancel_appointment
+Avez-vous des disponibilités entre midi et deux ?,book_appointment
+C'est ouvert à quelle heure le samedi matin ?,info_practical
+Je décommande le pédiatre.,cancel_appointment
+Je voudrais planifier mon opération des amygdales.,book_appointment
+Est-ce que tu m'aimes ?,off_topic
+Quels sont vos jours de fermeture ?,info_practical
+Je veux voir le remplaçant du docteur.,book_appointment
+En fait je ne peux pas venir lundi.,cancel_appointment
+Faites-vous des téléconsultations ?,info_practical
+Je souhaite annuler la consultation prévue.,cancel_appointment
+Je vais aller faire des courses.,off_topic
+Avez-vous un trou dans votre agenda aujourd'hui ?,book_appointment
+Je veux écouter de la musique.,off_topic
+J'ai reçu un coup de couteau au ventre.,medical_urgency
+Supprimez le rendez-vous de monsieur Durand.,cancel_appointment
+Ça dure combien de temps la séance ?,info_practical
+J'annule tout.,cancel_appointment
+Il fait beau aujourd'hui.,off_topic
+Le docteur est conventionné secteur 1 ou 2 ?,info_practical
+Est-ce qu'il y a de l'attente en général ?,info_practical
+Je ne viendrai pas finalement.,cancel_appointment
+C'est quoi la racine carrée de 144 ?,off_topic
+Comment on fait un noeud de cravate ?,off_topic
+Je ne pourrai pas être là pour ma consultation.,cancel_appointment
+Je ressens une brûlure immense je ne supporte plus la douleur.,medical_urgency
+Vous acceptez encore des nouveaux patients ?,info_practical
+Je cherche un créneau pour mon fils samedi matin.,book_appointment
+Il a une réaction allergique grave aux arachides.,medical_urgency
+Je perds énormément de sang par le nez et la bouche.,medical_urgency
+Il a les lèvres violettes et il tremble.,medical_urgency
+Comment on vient chez vous en transports ?,info_practical
+Puis-je avoir une facture ?,info_practical
+C'est quoi le tarif pour une consultation simple ?,info_practical
+J'ai un contretemps au travail je serai absent.,cancel_appointment
+C'est une overdose il ne respire presque plus.,medical_urgency
+Je n'ai plus besoin de cette consultation.,cancel_appointment
+Est-ce que vous faites des facilités de paiement ?,info_practical
+Je me sens mieux donc je ne viens pas.,cancel_appointment
+Une bonne série sur Netflix ?,off_topic
+Quels sont les modes de paiement acceptés ?,info_practical
+J'ai une douleur fulgurante dans le bras gauche.,medical_urgency
+C'est pour un rdv de suivi pédiatrique.,book_appointment
+Je veux une recette de crêpes.,off_topic
+Je dois annuler car j'ai raté mon train.,cancel_appointment
+Il pisse du sang c'est une urgence.,medical_urgency
+Combien coûte une consultation vidéo ?,info_practical
+Bla bla bla.,off_topic
+Merci de ne pas compter sur moi demain.,cancel_appointment
+C'est qui Michael Jackson ?,off_topic
+Je libère mon créneau pour quelqu'un d'autre.,cancel_appointment
+Je saigne énormément de la tête après une chute.,medical_urgency
+Vous pouvez libérer ma place pour jeudi ?,cancel_appointment
+J'ai une hémorragie qui ne s'arrête pas.,medical_urgency
+Annulez tout pour moi cette semaine.,cancel_appointment
+Prenez-moi un rdv pour une prise de sang demain matin.,book_appointment
+Mon dos est bloqué il me faut un ostéo.,book_appointment
+Je voudrais réserver un passage avec l'infirmière.,book_appointment
+Vous avez un site internet ?,info_practical
+Allô vous m'entendez bien ?,off_topic
+Bonne année.,off_topic
+Est-ce que je peux venir pour une consultation sans rdv ?,book_appointment
+Il a reçu un choc violent à la tête il vomit.,medical_urgency
+On peut annuler le rdv de 11h ?,cancel_appointment
+Je retire ma demande de rendez-vous.,cancel_appointment
+Est-ce que le docteur House consulte le mercredi ?,book_appointment
+À plus tard merci.,off_topic
+Désistement pour la consultation de 16h.,cancel_appointment
+Y a-t-il quelqu'un qui parle anglais ?,info_practical
+J'ai besoin de caler une consultation pour mes allergies.,book_appointment
+Je veux voir un film ce soir.,off_topic
+Faut-il être à jeun pour l'examen ?,info_practical
+Supprimez ma réservation s'il vous plaît.,cancel_appointment
+Je voudrais prendre rendez-vous avec le docteur Martin.,book_appointment
+Tu connais Siri ?,off_topic
+Il a été renversé par une voiture il ne bouge pas.,medical_urgency
+Êtes-vous un humain ou une machine ?,off_topic
+Bonjour comment ça va aujourd'hui ?,off_topic
+Il a une barre dans la poitrine et sueurs froides.,medical_urgency
+Je veux réserver le créneau de 17h si possible.,book_appointment
+Il y a du sang partout il s'est coupé avec une machine.,medical_urgency
+Faut-il avancer les frais ?,info_practical
+Je ne serai pas disponible finalement.,cancel_appointment
+Mon fils est malade je dois annuler sa visite.,cancel_appointment
+Désolé je ne viendrai pas au cabinet.,cancel_appointment
+J'aimerais bloquer un moment pour mon bilan de santé.,book_appointment
+Je veux dormir.,off_topic
+Je ne comprends rien.,off_topic
+Est-ce qu'il reste de la place pour un pansement demain ?,book_appointment
+Salut je voulais juste dire bonjour.,off_topic
+J'aimerais fixer une date pour un rappel de vaccin.,book_appointment
+Est-ce que le centre est accessible aux fauteuils roulants ?,info_practical
+Je dois absolument voir quelqu'un pour ma grippe.,book_appointment
+Est-ce possible de décommander mon rdv ?,cancel_appointment
+Quelle est la station de métro la plus proche ?,info_practical
+Tu es un garçon ou une fille ?,off_topic
+Merci beaucoup pour les infos.,off_topic
+Est-ce que vous êtes ouverts pendant les vacances ?,info_practical
+Ma femme est tombée inconsciente elle ne réagit plus.,medical_urgency
+Quel est le tarif des dépassements d'honoraires ?,info_practical
+Y a-t-il un ascenseur ?,info_practical
+C'est quoi ton film préféré ?,off_topic
+Je veux acheter des baskets.,off_topic
+Il s'est ouvert l'artère ça gicle il faut une ambulance.,medical_urgency
+Bonne soirée à tout le monde.,off_topic
+Il vient de faire une crise d'épilepsie.,medical_urgency
+Je voudrais consulter pour des maux de tête fréquents.,book_appointment
+C'est mort pour demain j'annule.,cancel_appointment
+Y a-t-il du retard aujourd'hui ?,info_practical
+Je veux voir le cardiologue pour mon hypertension.,book_appointment
+Quels documents faut-il apporter ?,info_practical
+Quelle est la capitale de l'Espagne ?,off_topic
+C'est loin de la gare ?,info_practical
+Est-ce qu'il y a une disponibilité pour un renouvellement ?,book_appointment
+Merci de m'avoir répondu.,off_topic
+Je m'ennuie parlez-moi d'autre chose.,off_topic
+Il y a un incendie et j'ai inhalé de la fumée.,medical_urgency
+C'est pour le suivi de ma grossesse.,book_appointment
+Je cherche un plombier.,off_topic
+Racontez-moi une blague.,off_topic
+Je ne vais pas pouvoir venir urgence.,cancel_appointment
+Serait-il possible de voir l'ophtalmo avant la fin du mois ?,book_appointment
+C'est possible d'avoir un rdv vidéo ?,book_appointment
+Elle convulse par terre aidez-nous.,medical_urgency
+Comment on dit merci en chinois ?,off_topic
+Je voudrais réserver une table au resto.,off_topic
+J'appelle pour dire que j'annule.,cancel_appointment
+Le secrétariat est ouvert le midi ?,info_practical
+Il me faut un rdv pour un certificat de sport.,book_appointment
+Je laisse ma place à un autre patient.,cancel_appointment
+Quel est le médecin de garde ce soir ?,info_practical
+Annulation de dernière minute désolé.,cancel_appointment
+Je ne peux pas venir à cause de la grève.,cancel_appointment
+Je ne suis plus disponible à cette heure-là.,cancel_appointment
+Vous avez de la place pour une séance de kiné cette semaine ?,book_appointment
+Mon fils est bleu et ne pleure pas.,medical_urgency
+C'est pour une visite de routine.,book_appointment
+Faites-vous les prises de sang sans rdv ?,info_practical
+Est-ce qu'il y a de la place pour une consultation demain ?,book_appointment
+J'aime pas attendre au téléphone.,off_topic
+C'est une tentative de suicide appelez les secours.,medical_urgency
+Réservez-moi une place pour la semaine prochaine.,book_appointment
+Avez-vous le wifi dans la salle d'attente ?,info_practical
+Elle est en train d'accoucher dans le salon.,medical_urgency
+Oubliez mon rendez-vous de mardi.,cancel_appointment
+Je suis un nouveau patient je veux prendre rdv.,book_appointment
+Vous êtes intelligent pour un robot.,off_topic
+Il me faudrait une plage horaire pour une téléconsultation.,book_appointment
+Puis-je payer en espèces ?,info_practical
+Merci d'effacer mon rdv.,cancel_appointment
+Donnez-moi les résultats du loto.,off_topic
+Il a pris une balle dans la jambe.,medical_urgency
+Mon père ne se réveille pas c'est un coma.,medical_urgency
+C'est une urgence vitale il s'étouffe.,medical_urgency
+C'est combien le prix pour une visite à domicile ?,info_practical
+Je dois voir le médecin pour mes résultats d'analyse.,book_appointment
+Je crois que je fais un AVC mon bras est paralysé.,medical_urgency
+Avez-vous de la place le 12 pour un détartrage ?,book_appointment
+Va-t-il pleuvoir cet après-midi ?,off_topic
+Je souhaite réserver une séance d'ostéopathie.,book_appointment
+Mon mari respire plus du tout aidez-moi.,medical_urgency
+Mon bébé a une fièvre de 41 et il est tout mou.,medical_urgency
+Vous pouvez m'envoyer le plan d'accès ?,info_practical
+Je voudrais prendre rdv pour ma mère chez le dermato.,book_appointment
+C'est bien le cabinet du docteur House ?,info_practical
+Je ne sens plus mes jambes après l'accident.,medical_urgency
+C'est quoi ton nom ?,off_topic
+À quelle heure vous fermez le soir ?,info_practical
+Joyeux anniversaire.,off_topic
+Quel est le sens de la vie ?,off_topic
+Je voudrais un rendez-vous tôt le matin.,book_appointment
+Je veux voir un spécialiste du sommeil.,book_appointment
+Je voudrais annuler mon rdv de demain.,cancel_appointment
+Je voudrais mettre fin à mon suivi.,cancel_appointment
+J'ai trouvé un autre médecin merci de supprimer.,cancel_appointment
+Le parking est-il payant ?,info_practical
+C'est pour faire le point sur mon traitement.,book_appointment
+Je cherche un nutritionniste pour un bilan.,book_appointment
+Au revoir et bonne journée.,off_topic
+Pouvez-vous chanter ?,off_topic
+Vous pouvez m'inscrire pour la vaccination de 15h ?,book_appointment
+Qui dois-je appeler en cas d'urgence la nuit ?,info_practical
+Ma voiture est en panne j'annule.,cancel_appointment
+Ok super à bientôt.,off_topic
+À quel étage se trouve le cabinet ?,info_practical
+Est-ce qu'il y a une pharmacie à côté ?,info_practical
+Est-ce que je serai remboursé à 100% ?,info_practical
+Ma gorge gonfle je ne peux plus avaler.,medical_urgency
+Vite il s'est électrocuté il ne bouge plus.,medical_urgency
+Je ne peux pas honorer le rendez-vous.,cancel_appointment
+Vous prenez la carte vitale pour le remboursement ?,info_practical
+Test un deux trois.,off_topic
+J'aimerais bien prendre un rdv pour un examen cardiaque.,book_appointment
+C'est plus la peine de me garder la place.,cancel_appointment
+Ma fille fait un choc allergique elle n'arrive plus à respirer.,medical_urgency
+J'ai une douleur terrible dans le bas du dos impossible de bouger.,medical_urgency
+Je veux jouer à un jeu.,off_topic
+Il s'est noyé on vient de le sortir de l'eau.,medical_urgency

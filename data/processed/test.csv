@@ -1,0 +1,59 @@
+text,intent
+Je veux caler une visite pour un certificat médical.,book_appointment
+Y a-t-il quelqu'un ?,off_topic
+Faites-vous les vaccins pour les voyages ?,info_practical
+Je veux résilier mon rendez-vous.,cancel_appointment
+Je voudrais commander une pizza.,off_topic
+Je voudrais annuler mon opération.,cancel_appointment
+J'ai coupé mon doigt il est tombé par terre.,medical_urgency
+Il a perdu connaissance en pleine rue.,medical_urgency
+Je fais une crise d'asthme j'ai plus de ventoline.,medical_urgency
+C'est pour une première consultation s'il vous plaît.,book_appointment
+Quelles mutuelles acceptez-vous ?,info_practical
+Ne m'attendez pas cet après-midi.,cancel_appointment
+Y a-t-il une salle d'attente pour enfants ?,info_practical
+Rien à voir mais je suis fatigué.,off_topic
+Est-il possible de voir un généraliste cet après-midi ?,book_appointment
+Je ne passerai pas ce soir.,cancel_appointment
+Je cherche le score du match de foot.,off_topic
+J'ai faim.,off_topic
+Avez-vous de la place pour une séance d'acupuncture ?,book_appointment
+Quelle heure est-il à New York ?,off_topic
+Qui est le président de la République ?,off_topic
+Je cherche un rdv tard le soir après le travail.,book_appointment
+Faut-il venir avec sa carte d'identité ?,info_practical
+Est-ce que le masque est obligatoire ?,info_practical
+Il a fait une chute de cheval il sent plus son dos.,medical_urgency
+Elle a perdu les eaux le bébé arrive.,medical_urgency
+Vous prenez la carte bleue ?,info_practical
+Acceptez-vous les chèques vacances ?,info_practical
+C'est une urgence absolue venez tout de suite.,medical_urgency
+Je dois faire enlever des points de suture.,book_appointment
+Je crois qu'il est mort il est froid.,medical_urgency
+Est-ce qu'il y a un accès handicapé ?,info_practical
+C'est dans quel bâtiment ?,info_practical
+Merci d'annuler mon passage chez le dentiste.,cancel_appointment
+Je veux prendre rdv pour un frottis.,book_appointment
+Il a fait un arrêt cardiaque devant moi.,medical_urgency
+J'ai une douleur atroce dans la poitrine comme un étau.,medical_urgency
+Y a-t-il un parking pour se garer pas loin ?,info_practical
+Il est resté sous l'eau trop longtemps il est inanimé.,medical_urgency
+Faut-il apporter son carnet de santé ?,info_practical
+Quel est le code de la porte d'entrée ?,info_practical
+Bonjour je voudrais voir le médecin traitant.,book_appointment
+Je cherche à voir une gynécologue de garde.,book_appointment
+Je voudrais fixer une rencontre avec le psychologue.,book_appointment
+Je ne peux plus me déplacer merci d'annuler.,cancel_appointment
+Je cherche un billet d'avion.,off_topic
+Ma mère fait un malaise elle tombe par terre.,medical_urgency
+J'ai un empêchement je dois supprimer mon créneau.,cancel_appointment
+Raconte-moi une histoire.,off_topic
+J'ai très mal au coeur j'ai peur de mourir.,medical_urgency
+Je suis obligé d'annuler ma venue.,cancel_appointment
+Donnez-moi votre numéro de téléphone.,info_practical
+Je souhaite me désister de ma séance.,cancel_appointment
+Est-ce que les chiens sont acceptés ?,info_practical
+Je cherche un rdv pour une radio du genou rapidement.,book_appointment
+Mon ami a pris trop de cachets il est en train de partir.,medical_urgency
+Merci de supprimer ma fiche pour demain.,cancel_appointment
+Il s'étouffe avec un morceau de viande il devient bleu.,medical_urgency
