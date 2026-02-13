@@ -30,6 +30,7 @@ services:
       --backend-store-uri postgresql://user:password@db:5432/medical_db
       --default-artifact-root /mlartifacts
       --host 0.0.0.0
+      --allowed-hosts "mlflow,mlflow:5000,localhost,localhost:5000"
     volumes:
       - ./mlartifacts:/mlartifacts
     depends_on:
@@ -45,6 +46,7 @@ services:
     volumes:
       - ./api:/app
       - ./data:/data
+      - ./mlartifacts:/mlartifacts
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - DATABASE_URL=postgresql://user:password@db:5432/medical_db
