@@ -31,6 +31,7 @@ INSERT INTO doctors (name, specialty) VALUES
 
 -- On insère les infos pratiques
 INSERT INTO clinic_info (key, value) VALUES 
+('clinic_name', 'Clinique Médicale de la République'),
 ('address', '123 Avenue de la République, Paris'),
 ('phone', '01 23 45 67 89'),
 ('hours', 'Du Lundi au Vendredi, 9h - 19h'),
