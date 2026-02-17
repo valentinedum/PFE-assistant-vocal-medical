@@ -54,5 +54,21 @@ services:
       - mlflow
       - db
 
+  train:
+    build:
+      context: .
+      dockerfile: services/model_training/Dockerfile
+    container_name: medical_train
+    volumes:
+      - ./data:/data
+      - ./mlartifacts:/mlartifacts
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      mlflow:
+        condition: service_started
+    profiles:
+      - train
+
 volumes:
   postgres_data:

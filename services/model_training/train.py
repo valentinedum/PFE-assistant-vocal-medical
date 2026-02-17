@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 # --- CONFIGURATION ---
 TRAIN_PATH = "data/processed/train.csv"
 TEST_PATH = "data/processed/test.csv"
-MLFLOW_TRACKING_DIR = "http://localhost:5000"
+MLFLOW_TRACKING_DIR = "http://mlflow:5000"
 EXPERIMENT_NAME = "medical_intent_classification"
 
 def train():
@@ -46,7 +46,13 @@ def train():
         mlflow.sklearn.log_model(model, "model_intent_classifier")
     
         model_uri = f"runs:/{run.info.run_id}/model_intent_classifier"
+        
+        # Enregistre le modèle dans le Model Registry
+        mlflow.register_model(model_uri, "medical_intent_classifier")
+        
         print(f"Modèle sauvegardé ! URI : {model_uri}")
+        print(f"✅ Modèle enregistré dans le Model Registry")
+
 
 if __name__ == "__main__":
     train()
