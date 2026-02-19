@@ -2,7 +2,6 @@ import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
 
-
 os.makedirs("data/processed", exist_ok=True)
 
 print("Préparation des données...")
@@ -16,7 +15,7 @@ except FileNotFoundError:
     exit(1)
 
 
-df = df.dropna(subset=['text', 'intent'])
+df = df.dropna(subset=["text", "intent"])
 print(f"Données nettoyées : {len(df)} lignes")
 
 # Diviser en train/test (80/20)
