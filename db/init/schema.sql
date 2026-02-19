@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS doctors (
 CREATE TABLE IF NOT EXISTS slots (
     id SERIAL PRIMARY KEY,
     doctor_id INTEGER REFERENCES doctors(id),
-    start_time TIMESTAMP NOT NULL,
+    day_of_week INTEGER NOT NULL,  -- 0=Dimanche, 1=Lundi, 2=Mardi, 3=Mercredi, 4=Jeudi, 5=Vendredi, 6=Samedi
+    hour INTEGER NOT NULL,         -- 9-17 (heure)
     is_booked BOOLEAN DEFAULT FALSE
 );
 
@@ -34,32 +35,25 @@ INSERT INTO clinic_info (key, value) VALUES
 ('clinic_name', 'Clinique Médicale de la République'),
 ('address', '123 Avenue de la République, Paris'),
 ('phone', '01 23 45 67 89'),
-('hours', 'Du Lundi au Vendredi, 9h - 19h'),
+('hours', 'Du Lundi au Vendredi, 9h - 17h'),
 ('price', '25€ la consultation (Secteur 1)'),
 ('parking', 'Oui, parking gratuit au sous-sol, limité à 2 heures');
 
--- On insère des créneaux 
+-- On insère des créneaux (Lundi à Vendredi, 9h à 17h pour chaque médecin)
+-- Dr. House (id=1)
+INSERT INTO slots (doctor_id, day_of_week, hour)
+SELECT 1, day, hour
+FROM generate_series(1, 5) AS day  -- 1=Lundi à 5=Vendredi
+CROSS JOIN generate_series(9, 17) AS hour;  -- 9h à 17h
 
-INSERT INTO slots (doctor_id, start_time, is_booked)
-SELECT 
-    1,
-    (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours'),
-    FALSE
-FROM generate_series(1, 7) AS d   -- 👈 Pour les 7 prochains jours
-CROSS JOIN generate_series(0, 8) AS h; -- 👈 De 9h à 17h (9 créneaux par jour)
+-- Dr. Smith (id=2)
+INSERT INTO slots (doctor_id, day_of_week, hour)
+SELECT 2, day, hour
+FROM generate_series(1, 5) AS day
+CROSS JOIN generate_series(9, 17) AS hour;
 
-INSERT INTO slots (doctor_id, start_time, is_booked)
-SELECT
-    2,
-    (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours'),
-    FALSE
-FROM generate_series(1, 7) AS d
-CROSS JOIN generate_series(0, 8) AS h;
-
-INSERT INTO slots (doctor_id, start_time, is_booked)
-SELECT
-    3,
-    (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours'),
-    FALSE
-FROM generate_series(1, 7) AS d
-CROSS JOIN generate_series(0, 8) AS h;
+-- Dr. Cymes (id=3)
+INSERT INTO slots (doctor_id, day_of_week, hour)
+SELECT 3, day, hour
+FROM generate_series(1, 5) AS day
+CROSS JOIN generate_series(9, 17) AS hour;
