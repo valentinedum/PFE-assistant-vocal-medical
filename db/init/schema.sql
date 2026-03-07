@@ -22,38 +22,49 @@ CREATE TABLE IF NOT EXISTS clinic_info (
     value TEXT NOT NULL
 );
 
+-- 4. Table des Rendez-vous
+CREATE TABLE IF NOT EXISTS appointments (
+    id SERIAL PRIMARY KEY,
+    slot_id INTEGER REFERENCES slots(id),
+    doctor_id INTEGER REFERENCES doctors(id),
+    patient_name TEXT DEFAULT 'Patient vocal',
+    booked_at TIMESTAMP DEFAULT NOW(),
+    transcription TEXT
+);
+
 --- PEUPLEMENT DES DONNÉES ---
 
 -- On insère les médecins
 INSERT INTO doctors (name, specialty) VALUES 
-('Dr. House', 'Orthodontiste'),
+('Dr. Maison', 'Orthodontiste'),
 ('Dr. Smith', 'Kinésithérapeute'),
-('Dr. Cymes', 'Généraliste');
+('Dr. Robert', 'Généraliste');
 
 -- On insère les infos pratiques
 INSERT INTO clinic_info (key, value) VALUES 
 ('clinic_name', 'Clinique Médicale de la République'),
 ('address', '123 Avenue de la République, Paris'),
 ('phone', '01 23 45 67 89'),
-('hours', 'Du Lundi au Vendredi, 9h - 17h'),
+('hours', 'Du Lundi au Vendredi, 9h - 19h'),
 ('price', '25€ la consultation (Secteur 1)'),
 ('parking', 'Oui, parking gratuit au sous-sol, limité à 2 heures');
 
--- On insère des créneaux (Lundi à Vendredi, 9h à 17h pour chaque médecin)
--- Dr. House (id=1)
-INSERT INTO slots (doctor_id, day_of_week, hour)
-SELECT 1, day, hour
-FROM generate_series(1, 5) AS day  -- 1=Lundi à 5=Vendredi
-CROSS JOIN generate_series(9, 17) AS hour;  -- 9h à 17h
+-- On insère des créneaux (uniquement du lundi au vendredi, de 9h à 18h)
 
--- Dr. Smith (id=2)
-INSERT INTO slots (doctor_id, day_of_week, hour)
-SELECT 2, day, hour
-FROM generate_series(1, 5) AS day
-CROSS JOIN generate_series(9, 17) AS hour;
+-- Docteur 1
+INSERT INTO slots (doctor_id, day_of_week, hour, is_booked)
+SELECT 1, dow, h, FALSE
+FROM generate_series(1, 5) AS dow        -- 1=lundi ... 5=vendredi
+CROSS JOIN generate_series(9, 18) AS h;  -- 9h à 18h
 
--- Dr. Cymes (id=3)
-INSERT INTO slots (doctor_id, day_of_week, hour)
-SELECT 3, day, hour
-FROM generate_series(1, 5) AS day
-CROSS JOIN generate_series(9, 17) AS hour;
+-- Docteur 2
+INSERT INTO slots (doctor_id, day_of_week, hour, is_booked)
+SELECT 2, dow, h, FALSE
+FROM generate_series(1, 5) AS dow
+CROSS JOIN generate_series(9, 18) AS h;
+
+-- Docteur 3
+INSERT INTO slots (doctor_id, day_of_week, hour, is_booked)
+SELECT 3, dow, h, FALSE
+FROM generate_series(1, 5) AS dow
+CROSS JOIN generate_series(9, 18) AS h;

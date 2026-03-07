@@ -1,26 +1,30 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, UploadFile, File
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from postgres import Postgres
 import mlflow
+import whisper
+import tempfile
 import os
+from dialogue_manager import process_intent
 
-from dialogue.router import run_dialogue_logic
-
-app = FastAPI(title="Assistant Vocal Médical API", version="0.3.0")
+app = FastAPI(title="Assistant Vocal Médical API", version="0.4.0")
 
 # --- CONFIGURATION ---
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000"))
 MODEL_PATH = os.getenv("MODEL_PATH", "models:/medical_intent_classifier/Production")
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+
+# --- CHARGEMENT MODELE WHISPER ---
+print("Chargement du modèle Whisper...")
+whisper_model = whisper.load_model(WHISPER_MODEL)
+print("Modèle Whisper chargé !")
 
 
-class DialogueRequest(BaseModel):
-    text: str
-
-
+# --- ROUTES API ---
 @app.get("/")
 def read_root():
-    return {"status": "alive", "version": "0.3.0"}
-
+    return FileResponse("/app/static/index.html")
 
 @app.get("/health")
 def health_check():
@@ -30,28 +34,43 @@ def health_check():
 @app.get("/appointments")
 def get_appointments():
     db = Postgres("postgresql://user:password@db:5432/medical_db")
-    slots = db.all("SELECT * FROM slots WHERE is_booked = FALSE;")
+    slots = db.all(
+        "SELECT s.id, s.start_time, d.name as doctor_name, d.specialty "
+        "FROM slots s JOIN doctors d ON s.doctor_id = d.id "
+        "WHERE s.is_booked = FALSE ORDER BY s.start_time;"
+    )
     return {"available_slots": slots}
 
 
 @app.post("/predict")
 def predict_intent(text: str):
+    """Prédit l'intention et exécute l'action correspondante avec réponse vocale."""
     model = mlflow.sklearn.load_model(MODEL_PATH)
     intent = model.predict([text])[0]
-    return {"intent": intent}
+    result = process_intent(intent, text)
+    return result
 
+@app.post("/transcribe")
+def transcribe_audio(file: UploadFile = File(...)):
+    """Reçoit un fichier audio, le transcrit, prédit l'intention et exécute l'action."""
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp.write(file.file.read())
+        tmp_path = tmp.name
 
-@app.post("/dialogue")
-def dialogue(request: DialogueRequest):
-    """Endpoint complet : Intent Classification + Dialogue Logic"""
     try:
-        # 1. Prédire l'intent
+        # Transcription avec Whisper
+        result = whisper_model.transcribe(tmp_path, language="fr")
+        text = result["text"].strip()
+
+        # Prédiction de l'intention
         model = mlflow.sklearn.load_model(MODEL_PATH)
-        intent = model.predict([request.text])[0]
+        intent = model.predict([text])[0]
 
-        # 2. Exécuter la logique de dialogue
-        response = run_dialogue_logic(request.text, intent)
+        # Traitement via le dialogue manager (action + TTS)
+        response = process_intent(intent, text)
+        return response
+    finally:
+        os.unlink(tmp_path)
 
-        return {"text": request.text, "intent": intent, "response": response}
-    except Exception as e:
-        return {"error": str(e), "text": request.text}
+# --- FICHIERS STATIQUES (front-end) ---
+app.mount("/static", StaticFiles(directory="/app/static"), name="static")
