@@ -39,13 +39,15 @@ def extract_slots_with_ollama(text):
         client = get_instructor_client()
 
         # Instruction pour Ollama
-        prompt = """Extrait les infos de rendez-vous du texte client:
+        prompt = """Extrait les infos de rendez-vous du texte client.
+                    Le texte peut contenir des erreurs de transcription vocale.
+
                     Texte: {text}
 
                     Retourne EXACTEMENT:
-                    - date: jour ou date textuelle
-                    - heure: format HH:MM
-                    - praticien: nom du médecin
+                    - date: le jour de la semaine en français, UNIQUEMENT parmi : lundi, mardi, mercredi, jeudi, vendredi, samedi, dimanche. Corrige les fautes de transcription (ex: "veut dit" → "vendredi", "mère credi" → "mercredi").
+                    - heure: format HH:MM. Convertis les mots en heures : "midi" → "12:00", "minuit" → "00:00", "15h" → "15:00", "9h30" → "09:30", "quinze heures" → "15:00", "dix heures" → "10:00".
+                    - praticien: nom de famille du médecin uniquement (sans "Dr." ni "docteur")
 
                     Si une info manque, laisse None."""
 

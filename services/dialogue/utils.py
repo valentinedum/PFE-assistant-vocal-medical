@@ -1,3 +1,4 @@
+from difflib import get_close_matches
 from postgres import Postgres
 
 db = Postgres("postgresql://user:password@db:5432/medical_db")
@@ -12,14 +13,47 @@ FRENCH_DAYS = {
     "dimanche": 0,
 }
 
+# Mots français pour les heures spéciales et les nombres
+TIME_WORDS = {
+    "midi": 12, "minuit": 0,
+    "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5,
+    "six": 6, "sept": 7, "huit": 8, "neuf": 9, "dix": 10,
+    "onze": 11, "douze": 12, "treize": 13, "quatorze": 14,
+    "quinze": 15, "seize": 16, "dix-sept": 17, "dix-huit": 18,
+}
+
+
+def fuzzy_match_day(text: str) -> str | None:
+    """Trouve le jour français le plus proche malgré les erreurs de transcription."""
+    text = text.lower().strip()
+    if text in FRENCH_DAYS:
+        return text
+    # Correspondance approximative (seuil 0.5 pour tolérer les grosses fautes)
+    matches = get_close_matches(text, FRENCH_DAYS.keys(), n=1, cutoff=0.5)
+    return matches[0] if matches else None
+
 
 def parse_time(time_text):
     if time_text is None:
         return None
-    text = str(time_text).lower()
-    for i in range(len(text)):
-        if text[i] in ["h", ":"]:
-            return int(text[:i])
+    text = str(time_text).lower().strip()
+
+    # Vérifier les mots spéciaux (midi, minuit, quinze, etc.)
+    for word, hour in TIME_WORDS.items():
+        if word in text:
+            return hour
+
+    # Format HH:MM ou HHhMM
+    import re
+    match = re.search(r'(\d{1,2})\s*[h:]', text)
+    if match:
+        return int(match.group(1))
+
+    # Nombre seul (ex: "15")
+    match = re.search(r'^(\d{1,2})$', text)
+    if match:
+        return int(match.group(1))
+
     return None
 
 
@@ -48,10 +82,13 @@ def validate_and_parse_slots(slots):
     date = slots.get("date")
     if date is None:
         date = ""
-    date = date.lower()
+    date = date.lower().strip()
 
-    if date not in FRENCH_DAYS:
+    # Correspondance approximative pour tolérer les erreurs de transcription
+    matched_day = fuzzy_match_day(date)
+    if matched_day is None:
         raise ValueError(f"Jour invalide: {date}")
+    date = matched_day
 
     # Valider l'heure
     hour = parse_time(slots.get("heure"))

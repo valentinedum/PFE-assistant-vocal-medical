@@ -9,3 +9,6 @@ pydantic
 instructor
 openai
 eval_type_backport
+openai-whisper
+python-multipart
+gTTS
