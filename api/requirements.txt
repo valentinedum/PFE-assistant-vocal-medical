@@ -6,3 +6,6 @@ mlflow
 requests
 postgres
 pydantic
+openai-whisper
+python-multipart
+gTTS

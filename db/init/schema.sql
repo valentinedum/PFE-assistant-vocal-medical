@@ -21,13 +21,23 @@ CREATE TABLE IF NOT EXISTS clinic_info (
     value TEXT NOT NULL
 );
 
+-- 4. Table des Rendez-vous
+CREATE TABLE IF NOT EXISTS appointments (
+    id SERIAL PRIMARY KEY,
+    slot_id INTEGER REFERENCES slots(id),
+    doctor_id INTEGER REFERENCES doctors(id),
+    patient_name TEXT DEFAULT 'Patient vocal',
+    booked_at TIMESTAMP DEFAULT NOW(),
+    transcription TEXT
+);
+
 --- PEUPLEMENT DES DONNÉES ---
 
 -- On insère les médecins
 INSERT INTO doctors (name, specialty) VALUES 
-('Dr. House', 'Orthodontiste'),
+('Dr. Maison', 'Orthodontiste'),
 ('Dr. Smith', 'Kinésithérapeute'),
-('Dr. Cymes', 'Généraliste');
+('Dr. Robert', 'Généraliste');
 
 -- On insère les infos pratiques
 INSERT INTO clinic_info (key, value) VALUES 
@@ -38,28 +48,40 @@ INSERT INTO clinic_info (key, value) VALUES
 ('price', '25€ la consultation (Secteur 1)'),
 ('parking', 'Oui, parking gratuit au sous-sol, limité à 2 heures');
 
--- On insère des créneaux 
+-- On insère des créneaux (uniquement du lundi au vendredi, de 9h à 18h)
 
 INSERT INTO slots (doctor_id, start_time, is_booked)
 SELECT 
     1,
-    (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours'),
+    slot_time,
     FALSE
-FROM generate_series(1, 7) AS d   -- 👈 Pour les 7 prochains jours
-CROSS JOIN generate_series(0, 8) AS h; -- 👈 De 9h à 17h (9 créneaux par jour)
+FROM (
+    SELECT (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours') AS slot_time
+    FROM generate_series(1, 14) AS d
+    CROSS JOIN generate_series(0, 9) AS h
+) sub
+WHERE EXTRACT(DOW FROM slot_time) BETWEEN 1 AND 5; -- 1=lundi ... 5=vendredi
 
 INSERT INTO slots (doctor_id, start_time, is_booked)
-SELECT
+SELECT 
     2,
-    (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours'),
+    slot_time,
     FALSE
-FROM generate_series(1, 7) AS d
-CROSS JOIN generate_series(0, 8) AS h;
+FROM (
+    SELECT (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours') AS slot_time
+    FROM generate_series(1, 14) AS d
+    CROSS JOIN generate_series(0, 9) AS h
+) sub
+WHERE EXTRACT(DOW FROM slot_time) BETWEEN 1 AND 5;
 
 INSERT INTO slots (doctor_id, start_time, is_booked)
-SELECT
+SELECT 
     3,
-    (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours'),
+    slot_time,
     FALSE
-FROM generate_series(1, 7) AS d
-CROSS JOIN generate_series(0, 8) AS h;
+FROM (
+    SELECT (CURRENT_DATE + (d || ' day')::INTERVAL + (h || ' hour')::INTERVAL + '9 hours') AS slot_time
+    FROM generate_series(1, 14) AS d
+    CROSS JOIN generate_series(0, 9) AS h
+) sub
+WHERE EXTRACT(DOW FROM slot_time) BETWEEN 1 AND 5;
