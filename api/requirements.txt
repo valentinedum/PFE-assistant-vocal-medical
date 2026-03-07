@@ -6,3 +6,6 @@ mlflow
 requests
 postgres
 pydantic
+instructor
+openai
+eval_type_backport

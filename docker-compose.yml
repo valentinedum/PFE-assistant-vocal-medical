@@ -28,6 +28,7 @@ services:
     command: >
       mlflow server
       --backend-store-uri postgresql://user:password@db:5432/medical_db
+      --registry-store-uri postgresql://user:password@db:5432/medical_db
       --default-artifact-root /mlartifacts
       --host 0.0.0.0
       --allowed-hosts "mlflow,mlflow:5000,localhost,localhost:5000"
@@ -45,14 +46,31 @@ services:
       - "8000:8000"
     volumes:
       - ./api:/app
+      - ./services:/app/services
       - ./data:/data
       - ./mlartifacts:/mlartifacts
     environment:
+      - PYTHONPATH=/app:/app/services
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - DATABASE_URL=postgresql://user:password@db:5432/medical_db
     depends_on:
       - mlflow
       - db
+      - ollama
+
+  ollama:
+    build:
+      context: ./services/extraction
+      dockerfile: Dockerfile
+    container_name: medical_ollama
+    runtime: nvidia # Utiliser le GPU si disponible
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_GPU=1
+
 
   train:
     build:
@@ -72,3 +90,4 @@ services:
 
 volumes:
   postgres_data:
+  ollama_data:
