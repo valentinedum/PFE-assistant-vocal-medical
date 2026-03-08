@@ -8,12 +8,15 @@ import tempfile
 import os
 from dialogue_manager import process_intent
 
-app = FastAPI(title="Assistant Vocal Médical API", version="0.4.0")
+app = FastAPI(title="Assistant Vocal Médical API", version="0.4.1")
 
 # --- CONFIGURATION ---
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000"))
 MODEL_PATH = os.getenv("MODEL_PATH", "models:/medical_intent_classifier/Production")
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+
+# --- SEUIL DE CONFIANCE POUR LE CLASSIFICATEUR D'INTENT ---
+INTENT_CONFIDENCE_THRESHOLD = 0.4
 
 # --- CHARGEMENT MODELE WHISPER ---
 print("Chargement du modèle Whisper...")
@@ -47,6 +50,11 @@ def predict_intent(text: str):
     """Prédit l'intention et exécute l'action correspondante avec réponse vocale."""
     model = mlflow.sklearn.load_model(MODEL_PATH)
     intent = model.predict([text])[0]
+    # Seuil de confiance : si le modèle n'est pas sûr, c'est off_topic
+    if hasattr(model, 'predict_proba'):
+        proba = model.predict_proba([text])[0]
+        if max(proba) < INTENT_CONFIDENCE_THRESHOLD:
+            intent = "off_topic"
     result = process_intent(intent, text)
     return result
 
@@ -65,6 +73,11 @@ def transcribe_audio(file: UploadFile = File(...)):
         # Prédiction de l'intention
         model = mlflow.sklearn.load_model(MODEL_PATH)
         intent = model.predict([text])[0]
+        # Seuil de confiance
+        if hasattr(model, 'predict_proba'):
+            proba = model.predict_proba([text])[0]
+            if max(proba) < INTENT_CONFIDENCE_THRESHOLD:
+                intent = "off_topic"
 
         # Traitement via le dialogue manager (action + TTS)
         response = process_intent(intent, text)

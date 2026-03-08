@@ -1,4 +1,5 @@
 import instructor
+from difflib import get_close_matches
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -39,17 +40,22 @@ def extract_slots_with_ollama(text):
         client = get_instructor_client()
 
         # Instruction pour Ollama
-        prompt = """Extrait les infos de rendez-vous du texte client.
-                    Le texte peut contenir des erreurs de transcription vocale.
+        prompt = """Tu es un extracteur d'informations de rendez-vous médical. Analyse le texte et extrais UNIQUEMENT les informations EXPLICITEMENT présentes.
 
                     Texte: {text}
 
-                    Retourne EXACTEMENT:
-                    - date: le jour de la semaine en français, UNIQUEMENT parmi : lundi, mardi, mercredi, jeudi, vendredi, samedi, dimanche. Corrige les fautes de transcription (ex: "veut dit" → "vendredi", "mère credi" → "mercredi").
-                    - heure: format HH:MM. Convertis les mots en heures : "midi" → "12:00", "minuit" → "00:00", "15h" → "15:00", "9h30" → "09:30", "quinze heures" → "15:00", "dix heures" → "10:00".
-                    - praticien: nom de famille du médecin uniquement (sans "Dr." ni "docteur")
+                    Règles STRICTES:
+                    - date: UNIQUEMENT un jour de la semaine (lundi/mardi/mercredi/jeudi/vendredi/samedi/dimanche) SI et SEULEMENT SI le patient le mentionne explicitement. Corrige les fautes de transcription (ex: "veut dit" → "vendredi"). Si AUCUN jour n'apparaît dans le texte → None.
+                    - heure: format HH:MM. Convertis: "midi" → "12:00", "15h" → "15:00", "dix heures" → "10:00". Si AUCUNE heure n'apparaît → None.
+                    - praticien: nom de famille uniquement (sans "Dr." ni "docteur"). Si AUCUN nom n'apparaît → None.
 
-                    Si une info manque, laisse None."""
+                    Exemples:
+                    - "RDV avec Dr Robert mardi à 14h" → date: "mardi", heure: "14:00", praticien: "Robert"
+                    - "RDV avec Dr Robert à 15h" → date: None, heure: "15:00", praticien: "Robert"
+                    - "RDV mardi à 10h" → date: "mardi", heure: "10:00", praticien: None
+                    - "Je veux un rendez-vous" → date: None, heure: None, praticien: None
+
+                    NE DEVINE JAMAIS. Si l'info n'est pas dans le texte, retourne None."""
 
         # On envoie à Ollama
         response = client.chat.completions.create(
@@ -58,7 +64,26 @@ def extract_slots_with_ollama(text):
             response_model=SlotsInfo,  # Force à retourner SlotsInfo
         )
 
-        return response.dict()
+        result = response.dict()
+        
+        # Sécurité : Ollama invente parfois un jour — vérifier qu'il existe dans le texte
+        if result.get("date"):
+            jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+            mots = text.lower().split()
+            if not any(get_close_matches(mot, jours, n=1, cutoff=0.7) for mot in mots):
+                result["date"] = None
+
+        # Sécurité : vérifier que l'heure existe dans le texte
+        if result.get("heure"):
+            import re
+            text_lower = text.lower()
+            mots_heure = ["midi", "minuit", "heure", "heures"]
+            has_time_word = any(m in text_lower for m in mots_heure)
+            has_time_number = bool(re.search(r'\d{1,2}\s*[h:]', text_lower)) or bool(re.search(r'\b\d{1,2}\b.*heure', text_lower))
+            if not has_time_word and not has_time_number:
+                result["heure"] = None
+
+        return result
 
     except Exception as e:
         print(f"Erreur Ollama: {e}")
