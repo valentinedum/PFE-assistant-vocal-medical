@@ -1,5 +1,8 @@
 from postgres import Postgres
-from services.dialogue.utils import validate_and_parse_slots, get_slot_id
+from services.dialogue.utils import (
+    validate_and_parse_slots, get_slot_id, MissingInfoError,
+    get_doctors_list, get_clinic_info, guess_info_type,
+)
 
 db = Postgres("postgresql://user:password@db:5432/medical_db")
 
@@ -35,9 +38,15 @@ def handle_appointment(slots):
         return (
             f"Rendez-vous confirmé le {date_text} à {time_text} avec le Dr. {doc_name}."
         )
+    except MissingInfoError as e:
+        details = ", ".join(e.missing_fields)
+        return (
+            f"Il me manque des informations pour prendre votre rendez-vous : {details}. "
+            f"Merci de préciser le médecin, le jour et l'heure en une seule phrase. "
+            f"Par exemple : 'Je voudrais un rendez-vous avec Dr. Robert, mardi à 14h.'"
+        )
     except Exception as e:
-        error_msg = str(e)
-        return f"Erreur de prise de rendez-vous: {error_msg}"
+        return f"Erreur de prise de rendez-vous: {str(e)}"
 
 
 def handle_cancel_appointment(slots):
@@ -56,51 +65,33 @@ def handle_cancel_appointment(slots):
         return (
             f"Rendez-vous annulé le {date_text} à {time_text} avec le Dr. {doc_name}."
         )
+    except MissingInfoError as e:
+        details = ", ".join(e.missing_fields)
+        return (
+            f"Il me manque des informations pour annuler votre rendez-vous : {details}. "
+            f"Merci de préciser le médecin, le jour et l'heure en une seule phrase."
+        )
     except Exception as e:
-        error_msg = str(e)
-        return f"Erreur d'annulation: {error_msg}"
+        return f"Erreur d'annulation: {str(e)}"
 
 
 def handle_info(user_text, info_type):
     try:
         # Médecins / spécialistes
         if info_type == "specialists":
-            specialists = db.all("SELECT name, specialty FROM doctors;")
-            if not specialists:
-                return "Aucun médecin disponible."
-
-            doctors_list = []
-            for doctor in specialists:
-                name = doctor.name if hasattr(doctor, 'name') else doctor["name"]
-                specialty = doctor.specialty if hasattr(doctor, 'specialty') else doctor["specialty"]
-                doctors_list.append(f"Dr. {name} ({specialty})")
-
-            return "Nos médecins : " + ", ".join(doctors_list)
+            doctors = get_doctors_list()
+            return f"Nos médecins : {doctors}" if doctors else "Aucun médecin disponible."
 
         # Info connue (address, hours, phone, price, parking)
         if info_type in INFO_TYPES:
             type_info, label = INFO_TYPES[info_type]
-            result = db.one("SELECT value FROM clinic_info WHERE key = %s;", (type_info,))
+            value = get_clinic_info(type_info)
+            return f"{label} {value}" if value else f"{info_type} non disponible"
 
-            if result:
-                value = result if isinstance(result, str) else result[0]
-                return f"{label} {value}"
-            else:
-                return f"{info_type} non disponible"
-
-        # Fallback : type non reconnu → essayer de deviner depuis le texte original
-        text_lower = user_text.lower()
-        keyword_map = {
-            "horaire": "hours", "heure": "hours", "ouvert": "hours",
-            "adresse": "address", "où": "address", "situe": "address",
-            "téléphone": "phone", "numéro": "phone", "appeler": "phone",
-            "tarif": "price", "prix": "price", "coût": "price",
-            "parking": "parking", "garer": "parking",
-            "médecin": "specialists", "docteur": "specialists", "équipe": "specialists",
-        }
-        for keyword, fallback_type in keyword_map.items():
-            if keyword in text_lower:
-                return handle_info(user_text, fallback_type)
+        # Fallback : deviner depuis le texte original
+        fallback = guess_info_type(user_text)
+        if fallback:
+            return handle_info(user_text, fallback)
 
         return "Information non disponible."
     except Exception as e:
