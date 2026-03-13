@@ -8,13 +8,21 @@ import whisper
 import tempfile
 import os
 from dialogue_manager import process_intent
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 from fastapi import Response
 from fastapi import Request
 
-# Définition des métriques
+# Définition des métriques techniques
 REQUEST_COUNT = Counter("api_requests_total", "Total des requêtes API", ["method", "endpoint"])
 REQUEST_LATENCY = Histogram("api_request_latency_seconds", "Latence des requêtes API")
+
+# Définition des métriques métiers (Base de données)
+APPOINTMENTS_BOOKED = Gauge("appointments_booked_total", "Total des rendez-vous réservés")
+OCCUPATION_RATE = Gauge("slot_occupation_rate", "Taux d'occupation des créneaux (0-100)")
+
+# Définition des métriques métiers (Machine Learning)
+INTENT_CLASSIFICATION_ACCURACY = Gauge("intent_classification_accuracy", "Accuracy du modèle d'intentions")
+INTENT_CLASSIFICATION_F1 = Gauge("intent_classification_f1_score", "F1-Score du modèle d'intentions")
 
 app = FastAPI(title="Assistant Vocal Médical API", version="0.5.0")
 
@@ -59,8 +67,39 @@ def read_root():
 def health_check():
     return {"status": "ok"}
 
+def update_business_metrics():
+    """Met à jour les métriques à partir de la base de données"""
+    try:
+        db = Postgres("postgresql://user:password@db:5432/medical_db")
+        
+        # 1. Total des rendez-vous
+        booked = db.one("SELECT COUNT(*) FROM appointments;")
+        APPOINTMENTS_BOOKED.set(booked if booked else 0)
+        
+        # 2. Taux d'occupation
+        total_slots = db.one("SELECT COUNT(*) FROM slots;")
+        if total_slots and total_slots > 0:
+            rate = (float(booked if booked else 0) / float(total_slots)) * 100
+            OCCUPATION_RATE.set(rate)
+            
+        # 3. Métriques MLflow (Classification)
+        try:
+            runs = mlflow.search_runs(experiment_names=["medical_intent_classification"], max_results=1)
+            if not runs.empty:
+                latest_run = runs.iloc[0]
+                acc = latest_run.get('metrics.accuracy', 0)
+                f1 = latest_run.get('metrics.f1_score', 0)
+                INTENT_CLASSIFICATION_ACCURACY.set(acc * 100)
+                INTENT_CLASSIFICATION_F1.set(f1 * 100)
+        except Exception as e:
+            print(f"Erreur chargement MLflow: {e}")
+            
+    except Exception as e:
+        print(f"Erreur lors de la maj des métriques métiers: {e}")
+
 @app.get("/metrics")
 def metrics():
+    update_business_metrics()
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 @app.get("/appointments")
@@ -84,6 +123,7 @@ def predict_intent(text: str):
         proba = model.predict_proba([text])[0]
         if max(proba) < INTENT_CONFIDENCE_THRESHOLD:
             intent = "off_topic"
+            
     result = process_intent(intent, text)
     return result
 

@@ -115,6 +115,9 @@ services:
       - prometheus
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./services/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./services/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./services/grafana/dashboards:/etc/grafana/dashboards
     user: "472"
 
 volumes:

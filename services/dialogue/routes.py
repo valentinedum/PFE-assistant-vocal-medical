@@ -3,8 +3,13 @@ from services.dialogue.utils import (
     validate_and_parse_slots, get_slot_id, MissingInfoError,
     get_doctors_list, get_clinic_info, guess_info_type,
 )
+from prometheus_client import Counter
 
 db = Postgres("postgresql://user:password@db:5432/medical_db")
+
+# Métriques pour l'extraction via LLM
+EXTRACTION_TOTAL = Counter("extraction_attempts_total", "Nombre total de tentatives d'extraction des slots")
+EXTRACTION_SUCCESS = Counter("extraction_success_total", "Nombre d'extractions réussies des slots")
 
 INFO_TYPES = {
     "address": ("address", "Notre cabinet est situé au"),
@@ -20,6 +25,7 @@ def handle_emergency(user_text):
 
 
 def handle_appointment(slots):
+    EXTRACTION_TOTAL.inc()
     try:
         day_num, hour, doctor_id, doc_name = validate_and_parse_slots(slots)
 
@@ -32,6 +38,8 @@ def handle_appointment(slots):
             "INSERT INTO appointments (slot_id, doctor_id, transcription) VALUES (%s, %s, %s);",
             (slot_id, doctor_id, f"{slots.get('date')} {slots.get('heure')} Dr. {doc_name}")
         )
+        
+        EXTRACTION_SUCCESS.inc()
 
         date_text = slots["date"]
         time_text = slots["heure"]
@@ -50,6 +58,7 @@ def handle_appointment(slots):
 
 
 def handle_cancel_appointment(slots):
+    EXTRACTION_TOTAL.inc()
     try:
         day_num, hour, doctor_id, doc_name = validate_and_parse_slots(slots)
 
@@ -59,6 +68,8 @@ def handle_cancel_appointment(slots):
 
         db.run("UPDATE slots SET is_booked = FALSE WHERE id = %s;", (slot_id,))
         db.run("DELETE FROM appointments WHERE slot_id = %s;", (slot_id,))
+        
+        EXTRACTION_SUCCESS.inc()
 
         date_text = slots["date"]
         time_text = slots["heure"]
