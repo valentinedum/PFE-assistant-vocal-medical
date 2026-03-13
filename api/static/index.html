@@ -155,12 +155,33 @@
         .detail-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.95em; }
         .detail-label { color: #7f8c8d; }
         .detail-value { color: #2c3e50; font-weight: 600; }
+
+        /* --- Lien Calendrier --- */
+        .calendar-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+        }
+
+        .calendar-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.4);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🩺 Assistant Vocal Médical</h1>
         <p class="subtitle">Appuyez sur le micro et parlez pour décrire votre besoin</p>
+        <a href="/static/calendar.html" class="calendar-link">📅 Voir le calendrier</a>
 
         <!-- Bouton Microphone -->
         <div class="mic-container">

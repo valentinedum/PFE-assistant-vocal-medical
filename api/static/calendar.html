@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendrier - Assistant Vocal Médical</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2em;
+        }
+
+        .header-links { display: flex; gap: 15px; }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .calendar-wrapper {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-title {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .doctor-section {
+            margin-bottom: 30px;
+        }
+
+        .doctor-section-header {
+            padding: 15px;
+            border-radius: 12px 12px 0 0;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 0;
+        }
+
+        .doctor-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            background: #ecf0f1;
+            padding: 1px;
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+        }
+
+        .day-col {
+            background: white;
+            padding: 12px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .day-col-header {
+            font-weight: 700;
+            font-size: 0.9em;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .slots-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        .slot {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slot.available {
+            background: #d5f5e3;
+            color: #27ae60;
+            border: 2px solid #27ae60;
+        }
+
+        .slot.available:hover {
+            background: #27ae60;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .slot.booked {
+            background: #fadbd8;
+            color: #922b21;
+            border: 2px solid #e74c3c;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .slot-time { font-weight: 700; font-size: 0.85em; }
+
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #3498db;
+        }
+
+        .legend h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            width: 25px;
+            height: 25px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .legend-box.available {
+            background: #d5f5e3;
+            border: 2px solid #27ae60;
+        }
+
+        .legend-box.booked {
+            background: #fadbd8;
+            border: 2px solid #e74c3c;
+        }
+
+        .legend-text { color: #555; font-size: 0.95em; }
+
+        .doctors-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 12px;
+        }
+
+        .doctors-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .doctor-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .doctor-name {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1.05em;
+            margin-bottom: 5px;
+        }
+
+        .doctor-specialty {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 20px; text-align: center; }
+            .header h1 { font-size: 1.5em; }
+            .calendar-wrapper { padding: 15px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Calendrier des Rendez-vous</h1>
+            <div class="header-links">
+                <a href="/" class="btn btn-primary">🎙️ Assistant Vocal</a>
+            </div>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-title">Semaine en cours</div>
+
+            <div id="calendarContent" class="loading">
+                <div class="spinner"></div>
+                <p>Chargement du calendrier...</p>
+            </div>
+
+            <div id="legend" style="display: none;">
+                <div class="legend">
+                    <h3>Légende</h3>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="legend-box available"></div>
+                            <div class="legend-text">Créneau disponible</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box booked"></div>
+                            <div class="legend-text">Créneau occupé</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doctors-info">
+                    <h3>👨‍⚕️ Nos médecins</h3>
+                    <div class="doctors-grid" id="doctorsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        const colors = ['#3498db', '#e74c3c', '#f39c12', '#27ae60', '#9b59b6', '#1abc9c'];
+
+        async function loadCalendar() {
+            try {
+                const response = await fetch('/calendar');
+                if (!response.ok) throw new Error('Erreur réseau');
+                const data = await response.json();
+                renderCalendar(data);
+            } catch (err) {
+                document.getElementById('calendarContent').innerHTML = `<p style="color: #e74c3c;">❌ Erreur: ${err.message}</p>`;
+            }
+        }
+
+        function renderCalendar(data) {
+            const { doctors, schedule } = data;
+            const doctorColors = {
+                'Dr. Maison': '#3498db',
+                'Dr. Smith': '#e74c3c',
+                'Dr. Robert': '#f39c12'
+            };
+
+            const slotsByDoctor = {};
+            doctors.forEach(doc => {
+                slotsByDoctor[doc.name] = {};
+                for (let day = 1; day <= 6; day++) slotsByDoctor[doc.name][day] = [];
+            });
+
+            schedule.forEach(slot => {
+                if (slotsByDoctor[slot.doctor_name]) {
+                    slotsByDoctor[slot.doctor_name][slot.day_of_week].push(slot);
+                }
+            });
+
+            let html = '';
+            doctors.forEach(doctor => {
+                const color = doctorColors[doctor.name] || '#3498db';
+                const daySlots = slotsByDoctor[doctor.name];
+
+                html += `
+                    <div class="doctor-section">
+                        <div class="doctor-section-header" style="background: linear-gradient(135deg, ${color}, ${color}dd);">
+                            👨‍⚕️ ${doctor.name} - ${doctor.specialty}
+                        </div>
+                        <div class="doctor-grid">
+                `;
+
+                for (let day = 1; day <= 6; day++) {
+                    const slots = daySlots[day] || [];
+                    const dayName = days[day];
+                    
+                    html += `<div class="day-col"><div class="day-col-header">${dayName.substring(0, 3)}</div><div class="slots-container">`;
+
+                    const hourMap = {};
+                    slots.forEach(slot => {
+                        const key = slot.hour;
+                        if (!hourMap[key]) hourMap[key] = [];
+                        hourMap[key].push(slot);
+                    });
+
+                    const hours = Object.keys(hourMap).sort((a, b) => parseInt(a) - parseInt(b));
+                    if (hours.length === 0) {
+                        html += `<div style="color: #bdc3c7; font-size: 0.8em; text-align: center; margin: auto;">-</div>`;
+                    } else {
+                        hours.forEach(hour => {
+                            hourMap[hour].forEach(slot => {
+                                const slotClass = slot.is_booked ? 'booked' : 'available';
+                                const timeStr = `${parseInt(hour)}:00`;
+                                html += `<div class="slot ${slotClass}"><div class="slot-time">${timeStr}</div></div>`;
+                            });
+                        });
+                    }
+
+                    html += `</div></div>`;
+                }
+
+                html += `</div></div>`;
+            });
+
+            document.getElementById('calendarContent').innerHTML = html;
+            document.getElementById('legend').style.display = 'block';
+
+            const doctorsList = document.getElementById('doctorsList');
+            doctorsList.innerHTML = doctors.map((doctor, idx) => `
+                <div class="doctor-card" style="border-left-color: ${colors[idx % colors.length]}">
+                    <div class="doctor-name">${doctor.name}</div>
+                    <div class="doctor-specialty">${doctor.specialty}</div>
+                </div>
+            `).join('');
+        }
+
+        loadCalendar();
+    </script>
+</body>
+
+</html>

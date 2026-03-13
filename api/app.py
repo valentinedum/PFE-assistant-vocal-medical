@@ -73,6 +73,38 @@ def get_appointments():
     )
     return {"available_slots": slots}
 
+@app.get("/calendar")
+def get_calendar():
+    """Retourne les slots organisés par médecin et jour"""
+    db = Postgres("postgresql://user:password@db:5432/medical_db")
+    
+    # Récupérer tous les médecins
+    doctors = db.all("SELECT id, name, specialty FROM doctors ORDER BY name;")
+    
+    # Récupérer tous les slots avec leurs infos
+    slots = db.all(
+        """
+        SELECT s.id, s.doctor_id, s.day_of_week, s.hour, s.is_booked, d.name as doctor_name, d.specialty
+        FROM slots s 
+        JOIN doctors d ON s.doctor_id = d.id 
+        ORDER BY s.day_of_week, s.hour;
+        """
+    )
+    
+    return {
+        "doctors": [{"id": d[0], "name": d[1], "specialty": d[2]} for d in doctors],
+        "schedule": [
+            {
+                "slot_id": s[0],
+                "doctor_id": s[1],
+                "day_of_week": s[2],
+                "hour": s[3],
+                "is_booked": s[4],
+                "doctor_name": s[5],
+                "specialty": s[6]
+            } for s in slots
+        ]
+    }
 
 @app.post("/predict")
 def predict_intent(text: str):
