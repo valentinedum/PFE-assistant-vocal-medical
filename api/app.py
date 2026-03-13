@@ -1,3 +1,4 @@
+from time import time
 from fastapi import FastAPI, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -7,16 +8,22 @@ import whisper
 import tempfile
 import os
 from dialogue_manager import process_intent
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from fastapi import Response
+from fastapi import Request
 
-app = FastAPI(title="Assistant Vocal Médical API", version="0.4.1")
+# Définition des métriques
+REQUEST_COUNT = Counter("api_requests_total", "Total des requêtes API", ["method", "endpoint"])
+REQUEST_LATENCY = Histogram("api_request_latency_seconds", "Latence des requêtes API")
 
-# --- CONFIGURATION ---
+app = FastAPI(title="Assistant Vocal Médical API", version="0.5.0")
+
+# --- CONFIGURATIONS MODELES---
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000"))
 MODEL_PATH = os.getenv("MODEL_PATH", "models:/medical_intent_classifier/Production")
+INTENT_CONFIDENCE_THRESHOLD = 0.4
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
 
-# --- SEUIL DE CONFIANCE POUR LE CLASSIFICATEUR D'INTENT ---
-INTENT_CONFIDENCE_THRESHOLD = 0.4
 
 # --- CHARGEMENT MODELE WHISPER ---
 print("Chargement du modèle Whisper...")
@@ -25,6 +32,25 @@ print("Modèle Whisper chargé !")
 
 
 # --- ROUTES API ---
+@app.middleware("http")
+async def monitor_requests(request: Request, call_next):
+    # Exclure les scrapes Prometheus du monitoring
+    if request.url.path == "/metrics":
+        return await call_next(request)
+    
+    start_time = time()
+
+    response = await call_next(request)
+    latency = time() - start_time
+    
+    endpoint = request.url.path
+    method = request.method
+    
+    REQUEST_COUNT.labels(method=method, endpoint=endpoint).inc()
+    REQUEST_LATENCY.observe(latency)
+    
+    return response
+
 @app.get("/")
 def read_root():
     return FileResponse("/app/static/index.html")
@@ -33,6 +59,9 @@ def read_root():
 def health_check():
     return {"status": "ok"}
 
+@app.get("/metrics")
+def metrics():
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 @app.get("/appointments")
 def get_appointments():
@@ -61,6 +90,7 @@ def predict_intent(text: str):
 @app.post("/transcribe")
 def transcribe_audio(file: UploadFile = File(...)):
     """Reçoit un fichier audio, le transcrit, prédit l'intention et exécute l'action."""
+    
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         tmp.write(file.file.read())
         tmp_path = tmp.name
