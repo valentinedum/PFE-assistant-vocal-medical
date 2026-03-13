@@ -1,14 +1,11 @@
 fastapi
 uvicorn
 pandas
-scikit-learn
-mlflow
 requests
 postgres
 pydantic
 instructor
-openai
 eval_type_backport
-openai-whisper
 python-multipart
 gTTS
+prometheus-client
