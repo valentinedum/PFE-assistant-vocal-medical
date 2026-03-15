@@ -11,6 +11,10 @@ from services.dialogue.routes import (
     handle_cancel_appointment,
 )
 
+ACTION_HANDLERS = {
+    "book_appointment": handle_appointment,
+    "cancel_appointment": handle_cancel_appointment,
+}
 
 def run_dialogue_logic(user_text, intent, context_json=None):
 
@@ -29,13 +33,11 @@ def run_dialogue_logic(user_text, intent, context_json=None):
             action = pending_action.get("type")
             slots = pending_action.get("slots")
 
-            if action == "book_appointment":
-                result = handle_appointment(slots, confirmation=True)
-                return {"response": result.get("message"), "context": None, "intent": "book_appointment"}
-            elif action == "cancel_appointment":
-                result = handle_cancel_appointment(slots, confirmation=True)
-                return {"response": result.get("message"), "context": None, "intent": "cancel_appointment"}
-
+            handler_function = ACTION_HANDLERS.get(action)
+            if handler_function:
+                result = handler_function(slots, confirmation=True)
+                return {"response": result.get("message"), "context": None, "intent": action}
+            
         elif confirmation == "non":
             return {"response": "D'accord, rendez-vous non confirmé. Si vous voulez autre chose, n'hésitez pas à demander.", "context": None}
         else:
@@ -46,22 +48,12 @@ def run_dialogue_logic(user_text, intent, context_json=None):
     if intent == "medical_urgency":
         return {"response": handle_emergency(user_text), "context": None}
 
-    # Prise de RDV
-    elif intent == "book_appointment":
+    # Prise de RDV ou Annulation de RDV
+    elif intent in ACTION_HANDLERS:
         slots = extract_slots_with_ollama(user_text)
-        result = handle_appointment(slots, confirmation=False)
 
-        new_context = None
-        message = result.get("message")
-        if result.get("needs_confirmation"):
-            new_context = json.dumps({"type": "book_appointment", "slots": slots})
-        
-        return {"response": message, "context": new_context}
-
-    # Annulation de RDV
-    elif intent == "cancel_appointment":
-        slots = extract_slots_with_ollama(user_text)
-        result = handle_cancel_appointment(slots, confirmation=False)
+        handler_function = ACTION_HANDLERS.get(intent)
+        result = handler_function(slots, confirmation=False)
 
         new_context = None
         message = result.get("message")
