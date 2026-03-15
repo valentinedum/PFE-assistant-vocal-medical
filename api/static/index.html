@@ -218,6 +218,8 @@
         let isRecording = false;
         let currentAudio = null;
 
+        let conversationContext = null; // Pour maintenir le contexte de dialogue
+
         const micBtn = document.getElementById('micBtn');
         const micStatus = document.getElementById('micStatus');
 
@@ -266,6 +268,11 @@
         async function sendAudio(audioBlob) {
             const formData = new FormData();
             formData.append('file', audioBlob, 'recording.webm');
+
+            if (conversationContext) {
+                formData.append('context', conversationContext);
+            }
+
             try {
                 const response = await fetch('/transcribe', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
@@ -290,7 +297,12 @@
             hideResults();
 
             try {
-                const response = await fetch(`/predict?text=${encodeURIComponent(text)}`, { method: 'POST' });
+                // --- NOUVEAU : On ajoute le contexte dans l'URL s'il y en a un ---
+                let url = `/predict?text=${encodeURIComponent(text)}`;
+                if (conversationContext) {
+                    url += `&context=${encodeURIComponent(conversationContext)}`;
+                }
+                const response = await fetch(url, { method: 'POST' });
                 if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
                 const data = await response.json();
                 displayResponse(data);
@@ -306,6 +318,8 @@
         // --- Affichage des résultats ---
         function displayResponse(data) {
             hideResults();
+
+            conversationContext = data.context || null;
 
             // Transcription
             if (data.transcription) {

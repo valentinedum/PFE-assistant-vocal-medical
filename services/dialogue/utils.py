@@ -13,6 +13,8 @@ FRENCH_DAYS = {
     "dimanche": 0,
 }
 
+DAY_NAMES = {v: k for k, v in FRENCH_DAYS.items()}
+
 TIME_WORDS = {
     "midi": 12, "minuit": 0,
     "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5,
@@ -30,7 +32,7 @@ INFO_KEYWORD_MAP = {
     "médecin": "specialists", "docteur": "specialists", "équipe": "specialists",
 }
 
-
+# -- Fonctions utilitaires pour le dialogue (extraction de slots, validation, etc.) ---
 def fuzzy_match_day(text: str) -> str | None:
     """Trouve le jour français le plus proche malgré les erreurs de transcription."""
     text = text.lower().strip()
@@ -73,7 +75,7 @@ def clean_doctor_name(name):
         name = name[3:]
     return name.capitalize()
 
-
+# --- Fonctions d'accès à la base de données pour les créneaux, médecins, infos du cabinet, etc. ---
 def get_slot_id(doctor_id, day_num, hour, is_booked):
     result = db.one(
         "SELECT id FROM slots WHERE doctor_id = %s AND day_of_week = %s AND hour = %s AND is_booked = %s LIMIT 1;",
@@ -154,3 +156,59 @@ def validate_and_parse_slots(slots):
         raise MissingInfoError(missing)
 
     return FRENCH_DAYS[matched_day], hour, doctor_id, clean_doctor_name(name)
+
+
+def get_availabilities(slots, is_booked=False):
+    """Récupère et formate les premières dispo selon les filtres partiels (max 3 résultats)."""
+    doc_name = (slots.get("praticien") or "").strip()
+    jour_raw = (slots.get("date") or "").strip()
+
+    # Valider qu'un docteur fourni existe réellement
+    if doc_name:
+        doctor_id = find_doctor_id(doc_name)
+        if not doctor_id:
+            return None  # Docteur inexistant
+    else:
+        doctor_id = None
+
+    matched_day = fuzzy_match_day(jour_raw) if jour_raw else None
+    day_num = FRENCH_DAYS.get(matched_day) if matched_day else None
+
+    query = "SELECT d.name, s.day_of_week, s.hour FROM slots s JOIN doctors d ON s.doctor_id = d.id WHERE s.is_booked = %s"
+    params = [is_booked]
+
+    if doctor_id:
+        query += " AND s.doctor_id = %s"
+        params.append(doctor_id)
+    if day_num is not None:
+        query += " AND s.day_of_week = %s"
+        params.append(day_num)
+
+    query += " ORDER BY d.name, s.day_of_week, s.hour;"
+    rows = db.all(query, tuple(params))
+
+    if not rows:
+        return None
+
+    # Formater selon le contexte (sans suffixe compliqué)
+    if doc_name and jour_raw:
+        heures = sorted(set([row[2] for row in rows]))[:5]
+        return f"Les premières disponibilités pour {doc_name} le {jour_raw} : {', '.join([f'{h}h' for h in heures])}."
+    elif doc_name:
+        by_day = {}
+        for row in rows:
+            by_day.setdefault(row[1], []).append(row[2])
+        details = [
+            f"{DAY_NAMES[d]} : {', '.join([f'{h}h' for h in sorted(set(by_day[d]))[:2]])}"
+            for d in sorted(by_day)[:3]
+        ]
+        return f"Les premières disponibilités du Dr. {doc_name} sont : {' ; '.join(details)}."
+    else:
+        by_doc = {}
+        for row in rows:
+            by_doc.setdefault(row[0], []).append(row[2])
+        details = [
+            f"Dr. {clean_doctor_name(doc)} : {', '.join([f'{h}h' for h in sorted(set(by_doc[doc]))[:2]])}"
+            for doc in sorted(by_doc)[:3]
+        ]
+        return f"Les premières disponibilités le {jour_raw} : {' ; '.join(details)}."
