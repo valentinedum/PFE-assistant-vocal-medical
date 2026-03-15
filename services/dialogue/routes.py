@@ -7,9 +7,12 @@ from prometheus_client import Counter
 
 db = Postgres("postgresql://user:password@db:5432/medical_db")
 
-# Métriques pour l'extraction via LLM
+# Métriques pour l'extraction via LLM et les actions de dialogue
 EXTRACTION_TOTAL = Counter("extraction_attempts_total", "Nombre total de tentatives d'extraction des slots")
 EXTRACTION_SUCCESS = Counter("extraction_success_total", "Nombre d'extractions réussies des slots")
+
+ACTION_PROPOSED = Counter("action_proposed_total", "Nombre d'actions proposées pour confirmation", ["action_type"])
+ACTION_CONFIRMED = Counter("action_confirmed_total", "Nombre d'actions validées jusqu'au bout", ["action_type"])
 
 INFO_TYPES = {
     "address": ("address", "Notre cabinet est situé au"),
@@ -23,9 +26,15 @@ def handle_emergency(user_text):
 
 
 def handle_appointment(slots, confirmation=False):
-    EXTRACTION_TOTAL.inc()
     try:
+
+        if not confirmation:
+            EXTRACTION_TOTAL.inc()
+        
         day_num, hour, doctor_id, doc_name = validate_and_parse_slots(slots)
+
+        if not confirmation:
+            EXTRACTION_SUCCESS.inc()
 
         slot_id = get_slot_id(doctor_id, day_num, hour, False)
         if slot_id is None:
@@ -34,17 +43,19 @@ def handle_appointment(slots, confirmation=False):
                 "needs_confirmation": False
             }
         if not confirmation:
+            ACTION_PROPOSED.labels(action_type="book_appointment").inc()
             return {
                 "message": f"Le créneau du {slots.get('date')} à {slots.get('heure')} est disponible. Dites 'oui' pour confirmer.",
                 "needs_confirmation": True 
             }
         
+        ACTION_CONFIRMED.labels(action_type="book_appointment").inc()
         db.run("UPDATE slots SET is_booked = TRUE WHERE id = %s;", (slot_id,))
         db.run(
             "INSERT INTO appointments (slot_id, doctor_id, transcription) VALUES (%s, %s, %s);",
             (slot_id, doctor_id, f"{slots.get('date')} {slots.get('heure')} Dr. {doc_name}")
         )
-        EXTRACTION_SUCCESS.inc()
+
         return {
             "message": f"C'est noté, le rendez-vous est confirmé le {slots.get('date')}.",
             "needs_confirmation": False
@@ -69,9 +80,14 @@ def handle_appointment(slots, confirmation=False):
         }
 
 def handle_cancel_appointment(slots, confirmation=False):
-    EXTRACTION_TOTAL.inc()
     try:
+        if not confirmation:
+            EXTRACTION_TOTAL.inc()
+
         day_num, hour, doctor_id, doc_name = validate_and_parse_slots(slots)
+
+        if not confirmation:
+            EXTRACTION_SUCCESS.inc()
 
         slot_id = get_slot_id(doctor_id, day_num, hour, True)
         if slot_id is None:
@@ -81,14 +97,15 @@ def handle_cancel_appointment(slots, confirmation=False):
             }
 
         if not confirmation:
+            ACTION_PROPOSED.labels(action_type="cancel_appointment").inc()
             return {
                 "message": f"Vous avez un rendez-vous avec le Dr. {doc_name} le {slots.get('date')} à {slots.get('heure')}. Dites 'oui' pour confirmer l'annulation.",
                 "needs_confirmation": True
             }
         
+        ACTION_CONFIRMED.labels(action_type="cancel_appointment").inc()
         db.run("UPDATE slots SET is_booked = FALSE WHERE id = %s;", (slot_id,))
         db.run("DELETE FROM appointments WHERE slot_id = %s;", (slot_id,))
-        EXTRACTION_SUCCESS.inc()
         return {
             "message": f"Votre rendez-vous avec le Dr. {doc_name} le {slots.get('date')} a été annulé.",
             "needs_confirmation": False

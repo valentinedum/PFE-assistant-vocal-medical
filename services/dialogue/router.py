@@ -58,7 +58,7 @@ def run_dialogue_logic(user_text, intent, context_json=None):
         new_context = None
         message = result.get("message")
         if result.get("needs_confirmation"):
-            new_context = json.dumps({"type": "cancel_appointment", "slots": slots})
+            new_context = json.dumps({"type": intent, "slots": slots})
 
         return {"response": message, "context": new_context}
         
