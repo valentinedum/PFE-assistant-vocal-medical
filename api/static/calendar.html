@@ -95,6 +95,13 @@
             overflow: hidden;
         }
 
+        #doctorCards {
+            margin-bottom: 32px;
+        }
+        #calendarContent {
+            margin-top: 32px;
+        }
+
         .day-col {
             background: white;
             padding: 12px;
@@ -281,14 +288,10 @@
         </div>
 
         <div class="calendar-wrapper">
-            <div class="calendar-title">Semaine en cours</div>
-
-            <div id="calendarContent" class="loading">
-                <div class="spinner"></div>
-                <p>Chargement du calendrier...</p>
-            </div>
-
-            <div id="legend" style="display: none;">
+            <div class="calendar-title">Choisissez un médecin</div>
+            <div id="doctorCards" class="doctors-grid"></div>
+            <div id="calendarContent" style="display:none;"></div>
+            <div id="legend" style="display:none;">
                 <div class="legend">
                     <h3>Légende</h3>
                     <div class="legend-items">
@@ -302,109 +305,92 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="doctors-info">
-                    <h3>👨‍⚕️ Nos médecins</h3>
-                    <div class="doctors-grid" id="doctorsList"></div>
-                </div>
             </div>
         </div>
     </div>
 
     <script>
         const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-        const colors = ['#3498db', '#e74c3c', '#f39c12', '#27ae60', '#9b59b6', '#1abc9c'];
-
+        let calendarData = null;
         async function loadCalendar() {
             try {
                 const response = await fetch('/calendar');
                 if (!response.ok) throw new Error('Erreur réseau');
-                const data = await response.json();
-                renderCalendar(data);
+                calendarData = await response.json();
+                renderDoctorCards(calendarData.doctors);
             } catch (err) {
-                document.getElementById('calendarContent').innerHTML = `<p style="color: #e74c3c;">❌ Erreur: ${err.message}</p>`;
+                document.getElementById('doctorCards').innerHTML = `<p style="color: #e74c3c;">❌ Erreur: ${err.message}</p>`;
             }
         }
-
-        function renderCalendar(data) {
-            const { doctors, schedule } = data;
+        function renderDoctorCards(doctors) {
+            const colors = ['#3498db', '#e74c3c', '#f39c12', '#27ae60', '#9b59b6', '#1abc9c'];
+            document.getElementById('doctorCards').innerHTML = doctors.map((doctor, idx) => `
+                <div class="doctor-card" style="border-left-color: ${colors[idx % colors.length]}" data-docname="${doctor.name}">
+                    <div class="doctor-name">${doctor.name}</div>
+                    <div class="doctor-specialty">${doctor.specialty}</div>
+                </div>
+            `).join('');
+            document.querySelectorAll('.doctor-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.doctor-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    renderDoctorCalendar(card.dataset.docname);
+                });
+            });
+        }
+        function renderDoctorCalendar(doctorName) {
+            const { doctors, schedule } = calendarData;
             const doctorColors = {
                 'Dr. Maison': '#3498db',
                 'Dr. Smith': '#e74c3c',
                 'Dr. Robert': '#f39c12'
             };
-
-            const slotsByDoctor = {};
-            doctors.forEach(doc => {
-                slotsByDoctor[doc.name] = {};
-                for (let day = 1; day <= 6; day++) slotsByDoctor[doc.name][day] = [];
-            });
-
+            const color = doctorColors[doctorName] || '#3498db';
+            const doctor = doctors.find(d => d.name === doctorName);
+            if (!doctor) return;
+            const slotsByDay = {};
+            for (let day = 1; day <= 6; day++) slotsByDay[day] = [];
             schedule.forEach(slot => {
-                if (slotsByDoctor[slot.doctor_name]) {
-                    slotsByDoctor[slot.doctor_name][slot.day_of_week].push(slot);
+                if (slot.doctor_name === doctorName) {
+                    slotsByDay[slot.day_of_week].push(slot);
                 }
             });
-
-            let html = '';
-            doctors.forEach(doctor => {
-                const color = doctorColors[doctor.name] || '#3498db';
-                const daySlots = slotsByDoctor[doctor.name];
-
-                html += `
-                    <div class="doctor-section">
-                        <div class="doctor-section-header" style="background: linear-gradient(135deg, ${color}, ${color}dd);">
-                            👨‍⚕️ ${doctor.name} - ${doctor.specialty}
-                        </div>
-                        <div class="doctor-grid">
-                `;
-
-                for (let day = 1; day <= 6; day++) {
-                    const slots = daySlots[day] || [];
-                    const dayName = days[day];
-                    
-                    html += `<div class="day-col"><div class="day-col-header">${dayName.substring(0, 3)}</div><div class="slots-container">`;
-
-                    const hourMap = {};
-                    slots.forEach(slot => {
-                        const key = slot.hour;
-                        if (!hourMap[key]) hourMap[key] = [];
-                        hourMap[key].push(slot);
-                    });
-
-                    const hours = Object.keys(hourMap).sort((a, b) => parseInt(a) - parseInt(b));
-                    if (hours.length === 0) {
-                        html += `<div style="color: #bdc3c7; font-size: 0.8em; text-align: center; margin: auto;">-</div>`;
-                    } else {
-                        hours.forEach(hour => {
-                            hourMap[hour].forEach(slot => {
-                                const slotClass = slot.is_booked ? 'booked' : 'available';
-                                const timeStr = `${parseInt(hour)}:00`;
-                                html += `<div class="slot ${slotClass}"><div class="slot-time">${timeStr}</div></div>`;
-                            });
-                        });
-                    }
-
-                    html += `</div></div>`;
-                }
-
-                html += `</div></div>`;
-            });
-
-            document.getElementById('calendarContent').innerHTML = html;
-            document.getElementById('legend').style.display = 'block';
-
-            const doctorsList = document.getElementById('doctorsList');
-            doctorsList.innerHTML = doctors.map((doctor, idx) => `
-                <div class="doctor-card" style="border-left-color: ${colors[idx % colors.length]}">
-                    <div class="doctor-name">${doctor.name}</div>
-                    <div class="doctor-specialty">${doctor.specialty}</div>
+            let html = `<div class="doctor-section">
+                <div class="doctor-section-header" style="background: linear-gradient(135deg, ${color}, ${color}dd);">
+                    👨‍⚕️ ${doctor.name} - ${doctor.specialty}
                 </div>
-            `).join('');
+                <div class="doctor-grid">
+            `;
+            for (let day = 1; day <= 6; day++) {
+                const slots = slotsByDay[day] || [];
+                const dayName = days[day];
+                html += `<div class="day-col"><div class="day-col-header">${dayName.substring(0, 3)}</div><div class="slots-container">`;
+                const hourMap = {};
+                slots.forEach(slot => {
+                    const key = slot.hour;
+                    if (!hourMap[key]) hourMap[key] = [];
+                    hourMap[key].push(slot);
+                });
+                const hours = Object.keys(hourMap).sort((a, b) => parseInt(a) - parseInt(b));
+                if (hours.length === 0) {
+                    html += `<div style="color: #bdc3c7; font-size: 0.8em; text-align: center; margin: auto;">-</div>`;
+                } else {
+                    hours.forEach(hour => {
+                        hourMap[hour].forEach(slot => {
+                            const slotClass = slot.is_booked ? 'booked' : 'available';
+                            const timeStr = `${parseInt(hour)}:00`;
+                            html += `<div class="slot ${slotClass}"><div class="slot-time">${timeStr}</div></div>`;
+                        });
+                    });
+                }
+                html += `</div></div>`;
+            }
+            html += `</div></div>`;
+            document.getElementById('calendarContent').innerHTML = html;
+            document.getElementById('calendarContent').style.display = 'block';
+            document.getElementById('legend').style.display = 'block';
         }
-
         loadCalendar();
     </script>
 </body>
-
 </html>
