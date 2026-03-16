@@ -50,6 +50,8 @@ jobs:
       - name: Build and start core stack
         # On lance uniquement les services nécessaires pour faire tourner l'API
         run: |
+          sed -i '/runtime: nvidia/d' docker-compose.yml
+          
           docker compose up -d --build db mlflow ollama api
           docker ps -a
 

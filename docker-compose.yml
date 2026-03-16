@@ -63,6 +63,7 @@ services:
       context: ./services/extraction
       dockerfile: Dockerfile
     container_name: medical_ollama
+    runtime: nvidia # Utiliser le GPU si disponible
     ports:
       - "11434:11434"
     volumes:
