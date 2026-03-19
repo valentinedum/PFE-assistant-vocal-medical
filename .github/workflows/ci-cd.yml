@@ -86,9 +86,14 @@ jobs:
           # On utilise curl pour dire à MLflow : "Mets la version 1 en Production"
           # L'API de MLflow permet de manipuler les alias sans script Python
           sleep 20
-          curl -X POST "http://localhost:5000/api/2.0/mlflow/registered-models/set-alias" \
+          curl -X POST "http://localhost:5000/api/2.0/mlflow/model-versions/transition-stage" \
                -H "Content-Type: application/json" \
-               -d '{"name": "medical_intent_classifier", "alias": "Production", "version": "1"}'
+               -d '{
+                 "name": "medical_intent_classifier",
+                 "version": "1",
+                 "stage": "Production",
+                 "archive_existing_versions": true
+               }'
 
       - name : Run integration tests
         run: |
