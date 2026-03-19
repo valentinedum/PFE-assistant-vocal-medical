@@ -1,7 +1,8 @@
 from difflib import get_close_matches
 from postgres import Postgres
 
-db = Postgres("postgresql://user:password@db:5432/medical_db")
+def get_db():
+    return Postgres("postgresql://user:password@db:5432/medical_db")
 
 FRENCH_DAYS = {
     "lundi": 1,
@@ -77,6 +78,7 @@ def clean_doctor_name(name):
 
 # --- Fonctions d'accès à la base de données pour les créneaux, médecins, infos du cabinet, etc. ---
 def get_slot_id(doctor_id, day_num, hour, is_booked):
+    db = get_db()
     result = db.one(
         "SELECT id FROM slots WHERE doctor_id = %s AND day_of_week = %s AND hour = %s AND is_booked = %s LIMIT 1;",
         (doctor_id, day_num, hour, is_booked),
@@ -86,6 +88,7 @@ def get_slot_id(doctor_id, day_num, hour, is_booked):
     return None
 
 def find_doctor_id(name):
+    db = get_db()
     for search in [name, f"Dr. {name}"]:
         result = db.one("SELECT id FROM doctors WHERE LOWER(name) = LOWER(%s);", (search,))
         if result:
@@ -94,6 +97,7 @@ def find_doctor_id(name):
 
 
 def get_doctors_list():
+    db = get_db()
     doctors = db.all("SELECT name, specialty FROM doctors;")
     if not doctors:
         return None
@@ -104,6 +108,7 @@ def get_doctors_list():
 
 
 def get_clinic_info(key):
+    db = get_db()
     result = db.one("SELECT value FROM clinic_info WHERE key = %s;", (key,))
     if result:
         return result if isinstance(result, str) else result[0]
@@ -127,6 +132,7 @@ class MissingInfoError(Exception):
 
 
 def validate_and_parse_slots(slots):
+    db = get_db()
     missing = []
 
     # Jour
@@ -162,6 +168,7 @@ def get_availabilities(slots, is_booked=False):
     """Récupère et formate les premières dispo selon les filtres partiels (max 3 résultats)."""
     doc_name = (slots.get("praticien") or "").strip()
     jour_raw = (slots.get("date") or "").strip()
+    db = get_db()
 
     # Valider qu'un docteur fourni existe réellement
     if doc_name:

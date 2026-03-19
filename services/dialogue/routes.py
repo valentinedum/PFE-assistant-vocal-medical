@@ -1,11 +1,8 @@
-from postgres import Postgres
 from services.dialogue.utils import (
     validate_and_parse_slots, get_slot_id, MissingInfoError,
-    get_doctors_list, get_clinic_info, guess_info_type, get_availabilities
+    get_doctors_list, get_clinic_info, guess_info_type, get_availabilities, get_db
 )
 from prometheus_client import Counter
-
-db = Postgres("postgresql://user:password@db:5432/medical_db")
 
 # Métriques pour l'extraction via LLM et les actions de dialogue
 EXTRACTION_TOTAL = Counter("extraction_attempts_total", "Nombre total de tentatives d'extraction des slots")
@@ -50,6 +47,7 @@ def handle_appointment(slots, confirmation=False):
             }
         
         ACTION_CONFIRMED.labels(action_type="book_appointment").inc()
+        db = get_db()
         db.run("UPDATE slots SET is_booked = TRUE WHERE id = %s;", (slot_id,))
         db.run(
             "INSERT INTO appointments (slot_id, doctor_id, transcription) VALUES (%s, %s, %s);",
@@ -104,6 +102,7 @@ def handle_cancel_appointment(slots, confirmation=False):
             }
         
         ACTION_CONFIRMED.labels(action_type="cancel_appointment").inc()
+        db = get_db()
         db.run("UPDATE slots SET is_booked = FALSE WHERE id = %s;", (slot_id,))
         db.run("DELETE FROM appointments WHERE slot_id = %s;", (slot_id,))
         return {
