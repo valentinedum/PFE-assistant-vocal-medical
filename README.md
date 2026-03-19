@@ -10,12 +10,12 @@ Assistant vocal intelligent pour un cabinet médical, permettant aux patients d'
 
 **Objectifs principaux :**
 
-- **Prise de rendez-vous vocale** — Le patient dicte sa demande, l'assistant comprend l'intention, extrait les informations (médecin, jour, heure) et réserve automatiquement le créneau.
-- **Gestion complète des RDV** — Prise, annulation de rendez-vous via commande vocale.
+- **Prise de rendez-vous vocale** — Le patient dicte sa demande, l'assistant comprend l'intention, extrait les informations. S'il manque des éléments, l'assistant propose les créneaux disponibles et demande à l'utilisateur de préciser les 3 champs obligatoires (médecin, jour, heure).
+- **Gestion complète des RDV** — Prise, annulation de rendez-vous via commande vocale avec double confirmation. L'assistant bascule dans un état de confirmation et exige une validation explicite (oui/non) avant de modifier la base de données.
 - **Détection d'urgences médicales** — Redirection immédiate vers le SAMU (15) en cas de situation critique détectée.
 - **Informations pratiques** — Horaires, adresse, tarifs, parking, liste des médecins disponibles.
 - **Réponse vocale (TTS)** — L'assistant répond à la fois par texte (pour du test) et par synthèse vocale.
-- **Monitoring & MLOps** — Suivi des performances du modèle ML et des métriques métiers via Prometheus/Grafana, tracking des expérimentations via MLflow.
+- **Monitoring & MLOps** — Pipeline automatisé via GitHub Actions (tests, entraînement ML, déploiement). Suivi des performances du modèle ML et des métriques métiers via Prometheus/Grafana, tracking des expérimentations via MLflow.
 
 ---
 
@@ -24,6 +24,7 @@ Assistant vocal intelligent pour un cabinet médical, permettant aux patients d'
 ```
 PFE-assistant-vocal-medical/
 ├── docker-compose.yml              # Orchestration de tous les services
+├── .github/workflows/              # Pipeline CI/CD (Tests + ML Training)
 ├── README.md
 │
 ├── api/                            # API FastAPI (point d'entrée principal)
@@ -59,12 +60,18 @@ PFE-assistant-vocal-medical/
 │       │   ├── API monitoring-*.json
 │       │   ├── KPI métiers-*.json
 │       │   └── Performances IA-*.json
-│       └── provisioning/
+│       └── provisioning/           
 │           ├── dashboards/
 │           │   └── dashboard.yml
 │           └── datasources/
 │               └── datasource.yml
 │
+├── tests/                          # Tests unitaire et de flux complets API
+│   ├── integration/               
+│   ├── unit/                       
+│   ├── ressources/                 # Fichiers audios pour tests
+│   └── conftest.py                 # Fixtures et Mocks globaux
+|
 ├── db/
 │   └── init/
 │       └── schema.sql              # Schéma BDD : médecins, créneaux, RDV, infos cabinet
@@ -215,9 +222,9 @@ Le pipeline complet, de la voix du patient à la réponse vocale :
 
 4. **Raffinement par mots-clés** — Un filet de sécurité corrige l'intention du modèle ML en détectant des mots-clés forts (ex: "annuler" → `cancel_appointment`, "urgence" → `medical_urgency`). Protège aussi contre les erreurs de transcription de Whisper.
 
-5. **Dialogue Router + Extraction LLM (Ollama/Mistral)** — Selon l'intention, le router délègue aux handlers appropriés. Pour les RDV, Ollama (Mistral) extrait les slots (date, heure, praticien) du texte via `instructor` (JSON structuré). Des vérifications de cohérence sont appliquées.
+5. **Dialogue Router + Extraction LLM (Ollama/Mistral)** — Selon l'intention, le router délègue aux handlers appropriés. Pour les RDV, Ollama (Mistral) extrait les slots (date, heure, praticien) du texte via `instructor` (JSON structuré). S'il manque des champs pour un RDV, l'assistant consulte la base de données, liste les possibilités réelles et exig les 3 champs (médecin, jour, heure). Une fois toutes les infos réunies, demande de double confirmation explicite
 
-6. **Action en BDD** — Le handler exécute l'action correspondante en base de données PostgreSQL (réservation, annulation, consultation d'infos pratiques, etc.).
+6. **Action en BDD** — Le handler exécute l'action correspondante en base de données PostgreSQL (réservation, annulation, consultation d'infos pratiques, etc.) une fois la confirmation obtenue.
 
 7. **TTS (gTTS)** — La réponse textuelle est convertie en audio MP3 via Google Text-to-Speech et renvoyée en base64 au client, qui la joue automatiquement.
 
@@ -225,7 +232,7 @@ Le pipeline complet, de la voix du patient à la réponse vocale :
 
 ---
 
-## 🧪 Tests et Validation
+## 🛡️ Évaluation ML & Guarde-fous (IA)
 
 - **Dataset** — Le dataset contient des phrases en français réparties en 5 intentions (`book_appointment`, `cancel_appointment`, `medical_urgency`, `info_practical`, `off_topic`), split 80/20 train/test.
 - **Validation du modèle** — L'accuracy est calculée sur le jeu de test à chaque entraînement et loggée dans MLflow.
@@ -310,9 +317,22 @@ models:/medical_intent_classifier/Production
 **Dashboards Grafana disponibles :**
 - API Monitoring (latence, requêtes, erreurs)
 - KPI Métiers (RDV réservés, taux d'occupation)
-- Performances IA (accuracy, F1, extractions)
+- Performances IA (accuracy, extractions Ollama)
 
 ---
+
+## 🧪 Tests Automatisés (CI/CD)
+
+La robustesse du code est assurée par une suite de tests automatisés utilisant pytest :
+- Tests unitaires (tests/unit/) : valident la logique interne des fonctions de manière isolée (ex: routage du dialogue, formatage des heures, matching des médecins).
+- Tests d'intégration (tests/integration/) : Lancent l'API et la base de données dans des conteneurs pour simuler des requêtes HTTP réelles.
+- Pour garantir des tests rapides et éviter les surcharges processeur (surtout sur GitHub Actions), les appels au LLM Mistral (Ollama) n'ont pas été automatisés.
+
+```bash
+# Pour lancer les tests localement :
+pytest tests/
+```
+
 
 ## 🔗 URLs Clés (Mode Docker)
 
