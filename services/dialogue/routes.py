@@ -63,12 +63,12 @@ def handle_appointment(slots, confirmation=False):
         msg = get_availabilities(slots, is_booked=False)
         if msg:
             return {
-                "message": msg + " Pour prendre rendez-vous, dites par exemple que vous voulez un rendez-vous et précise le docteur, le jour et l'heure.",
+                "message": msg + " Pour prendre rendez-vous, dites par exemple que vous voulez un rendez-vous et précisez le docteur, le jour et l'heure.",
                 "needs_confirmation": False
             }
         details = ", ".join(e.missing_fields)
         return {
-            "message": f"Il me manque des informations pour prendre le rendez-vous : {details}. Dites que vous voulez un rendez-vous et précise le docteur, le jour et l'heure.",
+            "message": f"Il me manque des informations pour prendre le rendez-vous : {details}. Dites que vous voulez un rendez-vous et précisez le docteur, le jour et l'heure.",
             "needs_confirmation": False
         }
     except Exception as e:
