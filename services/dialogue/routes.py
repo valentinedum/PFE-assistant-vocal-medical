@@ -5,8 +5,6 @@ from services.dialogue.utils import (
 from prometheus_client import Counter
 
 # Métriques pour l'extraction via LLM et les actions de dialogue
-EXTRACTION_TOTAL = Counter("extraction_attempts_total", "Nombre total de tentatives d'extraction des slots")
-EXTRACTION_SUCCESS = Counter("extraction_success_total", "Nombre d'extractions réussies des slots")
 
 ACTION_PROPOSED = Counter("action_proposed_total", "Nombre d'actions proposées pour confirmation", ["action_type"])
 ACTION_CONFIRMED = Counter("action_confirmed_total", "Nombre d'actions validées jusqu'au bout", ["action_type"])
@@ -24,14 +22,8 @@ def handle_emergency(user_text):
 
 def handle_appointment(slots, confirmation=False):
     try:
-
-        if not confirmation:
-            EXTRACTION_TOTAL.inc()
         
         day_num, hour, doctor_id, doc_name = validate_and_parse_slots(slots)
-
-        if not confirmation:
-            EXTRACTION_SUCCESS.inc()
 
         slot_id = get_slot_id(doctor_id, day_num, hour, False)
         if slot_id is None:
@@ -79,13 +71,8 @@ def handle_appointment(slots, confirmation=False):
 
 def handle_cancel_appointment(slots, confirmation=False):
     try:
-        if not confirmation:
-            EXTRACTION_TOTAL.inc()
 
         day_num, hour, doctor_id, doc_name = validate_and_parse_slots(slots)
-
-        if not confirmation:
-            EXTRACTION_SUCCESS.inc()
 
         slot_id = get_slot_id(doctor_id, day_num, hour, True)
         if slot_id is None:

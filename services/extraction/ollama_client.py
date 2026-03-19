@@ -2,9 +2,12 @@ import instructor
 from difflib import get_close_matches
 from pydantic import BaseModel, Field
 from typing import Optional
+from prometheus_client import Counter
 
 _client = None
 
+EXTRACTION_TOTAL = Counter("extraction_attempts_total", "Nombre total de tentatives d'extraction des slots")
+EXTRACTION_SUCCESS = Counter("extraction_success_total", "Nombre d'extractions réussies des slots")
 
 # Récupère un client singleton pour interagir avec Ollama (instructor)
 def get_instructor_client():
@@ -38,6 +41,7 @@ class ConfirmationResponse(BaseModel):
 
 # Fonction d'extraction des slots de rendez-vous et d'informations du cabinet à l'aide d'Ollama
 def extract_slots_with_ollama(text):
+    EXTRACTION_TOTAL.inc()
     try:
         client = get_instructor_client()
 
@@ -84,6 +88,8 @@ def extract_slots_with_ollama(text):
             has_time_number = bool(re.search(r'\d{1,2}\s*[h:]', text_lower)) or bool(re.search(r'\b\d{1,2}\b.*heure', text_lower))
             if not has_time_word and not has_time_number:
                 result["heure"] = None
+        
+        EXTRACTION_SUCCESS.inc()
 
         return result
 
@@ -93,6 +99,7 @@ def extract_slots_with_ollama(text):
 
 
 def extract_clinic_info(text):
+    EXTRACTION_TOTAL.inc()
     try:
         client = get_instructor_client()
 
@@ -118,6 +125,8 @@ def extract_clinic_info(text):
             response_model=ClinicInfoType,  # Force à retourner ClinicInfoType
         )
 
+        EXTRACTION_SUCCESS.inc()
+
         return response.dict()
 
     except Exception as e:
@@ -133,6 +142,8 @@ def extract_confirmation(text: str):
         - "Non, je ne veux pas ce rendez-vous"   → confirmation="non"
         - "Je ne sais pas" / question            → confirmation=None
         """
+
+        EXTRACTION_TOTAL.inc()
         try:
                 client = get_instructor_client()
 
@@ -158,6 +169,8 @@ def extract_confirmation(text: str):
                         messages=[{"role": "user", "content": prompt.format(text=text)}],
                         response_model=ConfirmationResponse,
                 )
+
+                EXTRACTION_SUCCESS.inc()
 
                 return response.dict()
 
