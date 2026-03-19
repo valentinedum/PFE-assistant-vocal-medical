@@ -27,17 +27,17 @@ def mock_get_slot():
         yield mock
 
 @pytest.fixture
-def mock_clinic_info():
-    """Simule la récupération des infos du cabinet."""
-    with patch("services.dialogue.routes.get_clinic_info") as mock:
-        mock.return_value = "123 rue de la Santé"
-        yield mock
-
-@pytest.fixture
 def mock_doctors_list():
     """Simule la récupération de la liste des médecins en BDD."""
     with patch("services.dialogue.routes.get_doctors_list") as mock:
         mock.return_value = "Dr. Dupont (Cardiologue), Dr. Martin (Dermatologue)"
+        yield mock
+
+@pytest.fixture
+def mock_clinic_info():
+    """Simule la récupération d'une info du cabinet en BDD."""
+    with patch("services.dialogue.routes.get_clinic_info") as mock:
+        mock.return_value = "123 rue de la Santé"
         yield mock
 
 
