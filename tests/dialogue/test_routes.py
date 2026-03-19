@@ -10,16 +10,7 @@ from services.dialogue.routes import (
 from services.dialogue.utils import MissingInfoError
 
 # ==========================================
-# 1. FIXTURES DES INPUTS (Ce qu'on fournit)
-# ==========================================
-@pytest.fixture
-def dummy_slots():
-    """Données de test standard pour éviter de les réécrire à chaque test."""
-    return {"date": "lundi", "heure": 10, "praticien": "Maison"}
-
-
-# ==========================================
-# 2. FIXTURES DE CE QUI EST SIMULÉ (Mocks pour les fonctions externes)
+# 1. FIXTURES 
 # ==========================================
 @pytest.fixture
 def mock_validate():
@@ -51,7 +42,7 @@ def mock_doctors_list():
 
 
 # ==========================================
-# 3. TESTS : Prise de Rendez-vous
+# 2. TESTS : Prise de Rendez-vous
 # ==========================================
 def test_handle_appointment_phase_1(mock_db, mock_validate, mock_get_slot, dummy_slots):
     """Phase 1 : On demande un RDV (Pas d'écriture en base)."""
@@ -97,7 +88,7 @@ def test_handle_appointment_general_exception(mock_validate, dummy_slots):
 
 
 # ==========================================
-# 4. TESTS : Annulation
+# 3. TESTS : Annulation
 # ==========================================
 def test_handle_cancel_appointment_phase_1(mock_db, mock_validate, mock_get_slot, dummy_slots):
     """Vérifie la demande d'annulation (Phase 1 : en attente de confirmation)."""
@@ -128,7 +119,7 @@ def test_handle_cancel_appointment_general_exception(mock_validate, dummy_slots)
     assert "Erreur d'annulation: Crash base de données" in result["message"]
 
 # ==========================================
-# 5. TESTS : Urgences et Infos
+# 4. TESTS : Urgences et Infos
 # ==========================================
 def test_handle_emergency():
     """Vérifie que l'urgence donne bien le numéro du SAMU."""
