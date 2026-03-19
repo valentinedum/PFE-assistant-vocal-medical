@@ -12,6 +12,7 @@ from services.dialogue.utils import (
 def test_fuzzy_match_day():
     assert fuzzy_match_day("luni") == "lundi"
     assert fuzzy_match_day("mardii") == "mardi"
+    assert fuzzy_match_day("mercredi ") == "mercredi"
     assert fuzzy_match_day("Rendez-vous") not in FRENCH_DAYS
 
 def test_parse_time():
@@ -22,6 +23,7 @@ def test_parse_time():
 
 def test_clean_doctor_name():
     assert clean_doctor_name("Dr. Dupont") == "Dupont"
+    assert clean_doctor_name("Dr. dupont") == "Dupont"
     assert clean_doctor_name(None) == ""
 
 def test_get_slot_id(mock_db):
