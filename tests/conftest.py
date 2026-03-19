@@ -19,3 +19,11 @@ def mock_db():
          patch("services.dialogue.routes.get_db", return_value=mock_instance):
         
         yield mock_instance
+
+@pytest.fixture
+def mock_ollama():
+    """Crée un mock universel pour le client instructor d'Ollama."""
+    with patch("services.extraction.ollama_client.get_instructor_client") as mock_get:
+        client = MagicMock()
+        mock_get.return_value = client
+        yield client
