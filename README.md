@@ -2,7 +2,6 @@
 
 ![page_accueil](img/page_accueil.png)
 
-> **Projet en cours de développement** — Ce README reflète l'état actuel du projet.
 ---
 
 ## 📖 Description du Projet
@@ -317,8 +316,6 @@ models:/medical_intent_classifier/Production
 ---
 
 ## 📊 Performance
-
-> Section à compléter — Les métriques de performance seront documentées au fur et à mesure de l'avancement.
 
 **Métriques suivies :**
 
