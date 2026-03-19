@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pandas
+requests
+postgres
+pydantic
+instructor
+eval_type_backport
+python-multipart
+gTTS
+prometheus-client
