@@ -24,7 +24,7 @@ jobs:
 
       - name: Install test deps
         run: |
-          pip install pytest httpx
+          pip install pytest
           # Optionnel : installer les dépendances de l'API si tes tests en ont besoin
           if [ -f api/requirements.txt ]; then pip install -r api/requirements.txt; fi
 
@@ -41,6 +41,12 @@ jobs:
     needs: unit
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
 
       - name: Show docker versions
         run: |
