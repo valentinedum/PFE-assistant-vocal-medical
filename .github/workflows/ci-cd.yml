@@ -79,6 +79,16 @@ jobs:
           echo "❌ API healthcheck failed"
           docker compose logs --no-color > compose-logs.txt || true
           exit 1
+      
+      - name: Train and Register Model
+        run: |
+          docker compose run --rm train
+          # On utilise curl pour dire à MLflow : "Mets la version 1 en Production"
+          # L'API de MLflow permet de manipuler les alias sans script Python
+          sleep 20
+          curl -X POST "http://localhost:5000/api/2.0/mlflow/registered-models/set-alias" \
+               -H "Content-Type: application/json" \
+               -d '{"name": "medical_intent_classifier", "alias": "Production", "version": "1"}'
 
       - name : Run integration tests
         run: |
