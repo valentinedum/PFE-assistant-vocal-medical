@@ -33,6 +33,8 @@ class ClinicInfoType(BaseModel):
         ..., description="Type: address, hours, phone, specialists, price, parking"
     )
 
+class ConfirmationResponse(BaseModel):
+    confirmation: Optional[str] = Field(None, description="Valeur 'oui', 'non' ou None")
 
 # Fonction d'extraction des slots de rendez-vous et d'informations du cabinet à l'aide d'Ollama
 def extract_slots_with_ollama(text):
@@ -121,3 +123,45 @@ def extract_clinic_info(text):
     except Exception as e:
         print(f"Erreur Ollama: {e}")
         return {"requested_info": "other"}
+
+
+def extract_confirmation(text: str):
+        """Extrait uniquement une confirmation explicite (oui/non) à partir du texte.
+
+        À appeler par exemple après avoir proposé un créneau :
+        - "Oui, jeconfirme le rendez-vous"       → confirmation="oui"
+        - "Non, je ne veux pas ce rendez-vous"   → confirmation="non"
+        - "Je ne sais pas" / question            → confirmation=None
+        """
+        try:
+                client = get_instructor_client()
+
+                prompt = """Tu es un extracteur de confirmation pour des rendez-vous médicaux.
+
+                                        Texte: {text}
+
+                                        Ta tâche est de dire si la personne CONFIRME ou REFUSE une action
+                                        sur un rendez-vous déjà proposé.
+
+                                        Règles :
+                                        - Si la personne dit clairement qu'elle confirme / valide / garde / est d'accord
+                                            → confirmation = "oui".
+                                        - Si la personne dit clairement qu'elle annule / refuse / ne veut pas / ne confirme pas
+                                            → confirmation = "non".
+                                        - Si ce n'est ni clairement oui ni clairement non (question, hésitation, autre)
+                                            → confirmation = None.
+
+                                        NE DEVINE JAMAIS. Si ce n'est pas évident, mets None."""
+
+                response = client.chat.completions.create(
+                        model="mistral",
+                        messages=[{"role": "user", "content": prompt.format(text=text)}],
+                        response_model=ConfirmationResponse,
+                )
+
+                return response.dict()
+
+        except Exception as e:
+                print(f"Erreur Ollama (confirmation): {e}")
+                return {"confirmation": None}
+

@@ -1,5 +1,5 @@
 from time import time
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request, Form, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from postgres import Postgres
@@ -9,8 +9,6 @@ import tempfile
 import os
 from dialogue_manager import process_intent
 from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
-from fastapi import Response
-from fastapi import Request
 
 # Définition des métriques techniques
 REQUEST_COUNT = Counter("api_requests_total", "Total des requêtes API", ["method", "endpoint"])
@@ -114,7 +112,7 @@ def get_appointments():
 
 
 @app.post("/predict")
-def predict_intent(text: str):
+def predict_intent(text: str, context : str = None):
     """Prédit l'intention et exécute l'action correspondante avec réponse vocale."""
     model = mlflow.sklearn.load_model(MODEL_PATH)
     intent = model.predict([text])[0]
@@ -124,11 +122,11 @@ def predict_intent(text: str):
         if max(proba) < INTENT_CONFIDENCE_THRESHOLD:
             intent = "off_topic"
             
-    result = process_intent(intent, text)
+    result = process_intent(intent, text, context)
     return result
 
 @app.post("/transcribe")
-def transcribe_audio(file: UploadFile = File(...)):
+def transcribe_audio(file: UploadFile = File(...), context : str = Form(None)):
     """Reçoit un fichier audio, le transcrit, prédit l'intention et exécute l'action."""
     
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
@@ -143,6 +141,7 @@ def transcribe_audio(file: UploadFile = File(...)):
         # Prédiction de l'intention
         model = mlflow.sklearn.load_model(MODEL_PATH)
         intent = model.predict([text])[0]
+
         # Seuil de confiance
         if hasattr(model, 'predict_proba'):
             proba = model.predict_proba([text])[0]
@@ -150,7 +149,7 @@ def transcribe_audio(file: UploadFile = File(...)):
                 intent = "off_topic"
 
         # Traitement via le dialogue manager (action + TTS)
-        response = process_intent(intent, text)
+        response = process_intent(intent, text, context)
         return response
     finally:
         os.unlink(tmp_path)

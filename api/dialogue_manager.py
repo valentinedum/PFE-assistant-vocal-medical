@@ -13,7 +13,7 @@ import base64
 from services.dialogue.router import run_dialogue_logic
 
 
-def process_intent(intent: str, transcription: str) -> dict:
+def process_intent(intent: str, transcription: str, context: str = None) -> dict:
     """
     Point d'entrée principal : raffine l'intention, exécute la logique de dialogue
     via les services (Ollama extraction + routes), et génère la réponse vocale TTS.
@@ -22,16 +22,20 @@ def process_intent(intent: str, transcription: str) -> dict:
     intent = refine_intent(intent, transcription)
 
     # Exécuter la logique de dialogue via les services (Ollama + routes DB)
-    response_text = run_dialogue_logic(transcription, intent)
+    dialogue_result = run_dialogue_logic(transcription, intent, context)
+    response_text = dialogue_result.get("response")
+    new_context = dialogue_result.get("context")
+    final_intent = dialogue_result.get("intent", intent)
 
     # Générer l'audio TTS
     audio_base64 = generate_tts(response_text)
 
     return {
-        "intent": intent,
+        "intent": final_intent,
         "transcription": transcription,
         "response": response_text,
         "audio": audio_base64,
+        "context": new_context
     }
 
 
