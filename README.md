@@ -360,4 +360,8 @@ pytest tests/
 | **Grafana**            | http://localhost:3000 (admin / admin)         |
 | **Prometheus**         | http://localhost:9090                         |
 
+## 🎥 Démonstration vidéo
+
+https://www.youtube.com/watch?v=FOBUrpv_wQc
+
 _Valentine Dumange / Kilian Davoust_
